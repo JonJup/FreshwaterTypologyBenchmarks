@@ -33,8 +33,6 @@ suppressPackageStartupMessages({
         library(tidymodels)
         library(doParallel)
         library(bundle)
-        # library(treeshap)
-        # library(shapviz)
         library(finetune)
 })
 
@@ -69,9 +67,6 @@ cat("Loading taxonomic resolution data...\n")
 tx <- list.files("data/misc/taxonomic_resolution/", full.names = TRUE)
 tx <- lapply(tx, readRDS)
 tx <- rbindlist(tx)
-# if (str_count(tx$scheme_id[1], "_") == 2){
-#         tx[, scheme_id := sub("^([A-Za-z]+_)\\1", "\\1", scheme_id)]
-# }
 if (length(gregexpr("_", tx$scheme_id[1])[[1]]) == 2) {
         tx$scheme_id <- sub("^([A-Za-z]+_)\\1", "\\1", tx$scheme_id)
 }
@@ -186,18 +181,20 @@ cat("Parallel backend registered with", all_cores - 1, "cores.\n")
 #===============================================================================
 # 7. Define model for TUNING (Fast version) ----
 #===============================================================================
-
+# to reduce computational cost, we just set a high number for the 'trees' para-
+# meter. Tuning this parameter would likely result in only marginal gains.
 cat("Stting up lightweight tuning model ... \n")
 rf_tune_spec <- 
         rand_forest(
                 mode = "regression",
-                trees = 1000, # to reduce computational cost, we just set a high number here. Tuning this parameter would likely result in only marginal gains. 
+                trees = 1000,  
                 mtry = tune(),
                 min_n = tune()
         ) %>%
         set_engine(
                 "ranger",
-                # when running with do Parallel this prevents over-subscribing cores
+                # when running with do Parallel this prevents over-subscribing 
+                # cores
                 num.threads = 1
         )
 

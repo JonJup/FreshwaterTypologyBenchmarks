@@ -69,20 +69,10 @@ source("../pulse/code/functions/render_table.R")
 source("../pulse/code/functions/prop_sample.R")
 source("../pulse/code/functions/calculate_auc.R")
 source("../pulse/code/functions/group_sites_by_cluster.R")
-#source("../pulse/code/functions/cv_d_squared_V2.R")
-#source("code/functions/render_table.R")
-#source("code/functions/prop_sample.R")
-#source("code/functions/calculate_auc.R")
-#source("code/functions/group_sites_by_cluster.R")
-#source("code/functions/cv_d_squared_V2.R")
-
-## 1.4 Parameters --------
-#source("../pulse/code/helper/run_parameters.R")
 
 # Use all available cores for within-job parallelization
 cores_to_use <- 8
 
-#simulated_files <- list.files("data/005_simulated_data/", full.names = T)
 ss_files        <- list.files("data/misc/spatial_scale/", full.names = T)
 cat("length of ss files is:" ,length(ss_files), "\n")
 cat(ss_files[1], "\n")
@@ -277,9 +267,6 @@ zeta_x      <- 1:10
 n_reps      <- 10
 
 # Setup parallel backend
-# cl <- makeCluster(cores_to_use)
-# registerDoParallel(cl)
-# results <- foreach(evaluation = 1:(i.N2), .combine = "rbind", .packages = c('zetadiv', 'dplyr')) %dopar% {
 
 for (evaluation in seq_len(i.N2)) {
 
@@ -480,19 +467,12 @@ i.fuzzy.out1 <-
         i.fuzzy.out2 <- numeric(i.N2)
 # set family for MVGLM
 i.fam <- "binary"
-#fuzzy_assignments <- unlist(i.file$fuzzy_cluster_assignment, recursive = FALSE)
 cluster_indices     <- ceiling(1:i.N2 / 5)
 
 for (evaluation in 1:i.N2){
         
         # Create matrix for fuzzy type memberships for this iteration
         current_memb <- as.matrix(i.file$fuzzy_cluster_assignment[[cluster_indices[evaluation]]]$memb)
-        # Compute Cross validated Squared Divergence
-        # i.fuzzy.out1[evaluation] <- cv_d_squared(
-        #         species_data = i.data[[evaluation]],
-        #         fuzzy_memberships =  current_memb,
-        #         family = i.fam
-        # )
         # Compute Mantel test
         i.fuzzy.out2[evaluation] <- mantel(
                 xdis = i.distance.matrices[[evaluation]],
@@ -500,7 +480,6 @@ for (evaluation in 1:i.N2){
                 permutations = 1)[["statistic"]]
 
 }
-# out[[length(out) + 1]] <- render_table(i.fuzzy.out1, "fuzzy_divergence")
 out[[length(out) + 1]] <- render_table(i.fuzzy.out2, "fuzzy_mantel")
 
 
