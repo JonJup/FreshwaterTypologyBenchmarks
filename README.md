@@ -93,7 +93,7 @@ We also wish to thank the Finnish Computing Competence Infrastructure (FCCI) for
 
 Questions, bug reports, and collaboration enquiries are welcome via GitHub issues, or by email to jonjup[at]protonmail.com
 
-=======
+
 - **Code:** [GPL-3.0 ]
 - **Derived data and figures:** CC BY 4.0, unless otherwise stated in the relevant Zenodo record.
 - Source datasets retain their original licences; contact the listed providers for redistribution terms.
@@ -101,4 +101,4 @@ Questions, bug reports, and collaboration enquiries are welcome via GitHub issue
 ## Contact
 
 Questions, bug reports, and collaboration enquiries are welcome via GitHub issues, or by email to **[corresponding author]**.
->>>>>>> b95c47e54e6f9134c6d1ad6cc3dab63772d84931
+
