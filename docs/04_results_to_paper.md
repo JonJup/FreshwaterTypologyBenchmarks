@@ -139,8 +139,9 @@ classDef file fill:#E8F5E9,stroke:#388E3C,stroke-width:2px,color:#000
 classDef folder fill:#FFF9C4,stroke:#FBC02D,stroke-width:2px,color:#000
 classDef figure fill:#FFCCBC,stroke:#E64A19,stroke-width:2px,color:#000
 
+
+
 %% Folders
-D1[/"📁 000_biota/*_scheme.rds/"/]:::folder
 D2[/"📁 004_model_fit/"/]:::folder
 D3[/"📁 004_model_fit_detail/"/]:::folder
 D4[/"📁 005_variation_partitioning/"/]:::folder
@@ -166,7 +167,7 @@ SF2(["📜 variationPartitioning_hmsc_ternary.R"]):::script
 SF3(["📜 variableImportance_hmsc.R"]):::script
 
 %% Files
-F1["📄 taxon_spec_hmsc_*.rds"]:::file
+F1["📄 taxon_spec_hmsc_*taxon*.rds"]:::file
 F2["📄 taxon_spec_hmsc_tables.rds"]:::file
 F3["📄 variationPartitioning_hmsc.rds"]:::file
 F4["📄 variationPartitioning_hmsc_ternary.rds"]:::file
@@ -174,6 +175,7 @@ F5["📄 variableImportance_hmsc.rds"]:::file
 F6["📄 qrf_metrics.rds"]:::file
 F7["📄 qrf_variable_importance.rds"]:::file
 F8["📄 qrf_interval_coverage.rds"]:::file
+F9["📄 *taxon*_scheme.rds"]:::file
 
 %% Figures
 G1{{"🖼️ variationPartitioning_hmsc.png"}}:::figure
@@ -185,8 +187,8 @@ G6{{"🖼️ ternartry_macrophytes.tiff"}}:::figure
 G7{{"🖼️ variableImportance_hmsc.png"}}:::figure
 
 %% Edges
-D1 --> S1
-D1 --> S2
+F9 --> S1
+F9 --> S2
 D2 --> S3
 D3 --> S3
 D4 --> S2
