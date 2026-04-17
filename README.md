@@ -33,13 +33,13 @@ The pipeline is deliberately modular so that each component — data preparation
 ```
 .
 ├── R/                    # Reusable functions sourced by the pipeline
-├── code/                # Top-level, numbered scripts (one per pipeline stage)
-│   ├── 01_prepare_data.R
-│   ├── 02_build_typology.R
-│   ├── 03_fit_hmsc.R
-│   ├── 04_simulate_counterfactuals.R
-│   ├── 05_fit_qrf_benchmarks.R
-│   └── 06_evaluate.R
+├── code/                 # Top-level, numbered scripts (one per pipeline stage)
+│   ├── 01_add_eu_hydro_to_biota.R
+│   ├── 02_combine_env.R
+│   ├── 03_add_env_biota.R
+│   ├── 04_define_schemes.R
+│   ├── ...
+│   ├── results/
 ├── docs/
 │   ├── 01_preparation.md
 │   ├── 02_hmsc.md
