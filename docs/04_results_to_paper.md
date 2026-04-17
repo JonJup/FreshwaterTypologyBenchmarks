@@ -1,6 +1,6 @@
 === WORKFLOW 1: Established typologies ===
 ``` mermaid
-flowchart TD
+flowchart LR
 
 classDef script fill:#E1F5FE,stroke:#0288D1,stroke-width:2px,color:#000
 classDef helper fill:#F3E5F5,stroke:#7B1FA2,stroke-width:2px,color:#000
@@ -10,9 +10,9 @@ classDef figure fill:#FFCCBC,stroke:#E64A19,stroke-width:2px,color:#000
 
 %% Folders
 D1[/"📁 007_evaluationsOriginals/"/]:::folder
-D2[/"📁 misc/taxonomic_resolution/"/]:::folder
-D3[/"📁 misc/spatial_scale/"/]:::folder
-D4[/"📁 misc/taxa_counts/"/]:::folder
+D2[/"📁 taxonomic_resolution/"/]:::folder
+D3[/"📁 spatial_scale/"/]:::folder
+D4[/"📁 taxa_counts/"/]:::folder
 
 %% Scripts
 S1(["📜 explore_performance_of_original_typologies.R"]):::script
@@ -47,8 +47,8 @@ SF1 --> G4
 
 ```
 === WORKFLOW 2: Simulation evaluation & coherence figures ===
-```
-flowchart TD
+``` mermaid
+flowchart LR
 
 classDef script fill:#E1F5FE,stroke:#0288D1,stroke-width:2px,color:#000
 classDef helper fill:#F3E5F5,stroke:#7B1FA2,stroke-width:2px,color:#000
@@ -58,10 +58,10 @@ classDef figure fill:#FFCCBC,stroke:#E64A19,stroke-width:2px,color:#000
 
 %% Folders
 D1[/"📁 007_evaluations/"/]:::folder
-D2[/"📁 misc/taxonomic_resolution/"/]:::folder
-D3[/"📁 misc/spatial_scale/"/]:::folder
-D4[/"📁 misc/taxa_counts/"/]:::folder
-D5[/"📁 misc/simulation_diagnostics/"/]:::folder
+D2[/"📁 taxonomic_resolution/"/]:::folder
+D3[/"📁 spatial_scale/"/]:::folder
+D4[/"📁 taxa_counts/"/]:::folder
+D5[/"📁 simulation_diagnostics/"/]:::folder
 
 %% Scripts
 S1(["📜 figure31_data.R"]):::script
@@ -130,8 +130,8 @@ SF6 --> G7
 
 ```
 === WORKFLOW 3: HMSC & QRF (model-based analyses) ===
-```
-flowchart TD
+``` mermaid
+flowchart LR
 
 classDef script fill:#E1F5FE,stroke:#0288D1,stroke-width:2px,color:#000
 classDef helper fill:#F3E5F5,stroke:#7B1FA2,stroke-width:2px,color:#000
@@ -146,9 +146,9 @@ D3[/"📁 004_model_fit_detail/"/]:::folder
 D4[/"📁 005_variation_partitioning/"/]:::folder
 D5[/"📁 007_evaluations/"/]:::folder
 D6[/"📁 008_qrf/"/]:::folder
-D7[/"📁 misc/taxonomic_resolution/"/]:::folder
-D8[/"📁 misc/spatial_scale/"/]:::folder
-D9[/"📁 misc/taxa_counts/"/]:::folder
+D7[/"📁 taxonomic_resolution/"/]:::folder
+D8[/"📁 spatial_scale/"/]:::folder
+D9[/"📁 taxa_counts/"/]:::folder
 
 %% Scripts
 S1(["📜 explore_simulation_filter.R"]):::script
@@ -224,8 +224,8 @@ SF3 --> G7
 
 ```
 === WORKFLOW 4: MIDIFIRE maps & filtering diagnostics ===
-```
-flowchart TD
+``` mermaid
+flowchart LR
 
 classDef script fill:#E1F5FE,stroke:#0288D1,stroke-width:2px,color:#000
 classDef helper fill:#F3E5F5,stroke:#7B1FA2,stroke-width:2px,color:#000
