@@ -80,7 +80,7 @@ The PULSE Shiny app provides an interactive view of the benchmarks:
 - Batch prediction from uploaded CSV/Excel tables
 - KNN-based imputation of missing environmental predictors
 
-A hosted version is available at: **[URL placeholder]**.
+A hosted version is available **[HERE](https://jonjup.github.io/blog/static/pulse-app.html)**.
 The GitHub repository is [here](https://github.com/JonJup/TypologyBenchmarkPrediction).
 
 ## Funding and acknowledgments
