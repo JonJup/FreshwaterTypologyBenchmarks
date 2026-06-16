@@ -1,4 +1,4 @@
-**Pan-European freshwater ecotypologies and ecological benchmarks from data-driven typologies and joint species distribution models**
+**Grading on a Curve: Generating context-specific Benchmarks for the Biological Evaluation of Freshwater Typology Systems**
 
 <!-- Optional badges -->
 <!-- [![DOI](https://zenodo.org/badge/DOI/xx.xxxx/zenodo.xxxxxxx.svg)](https://doi.org/xx.xxxx/zenodo.xxxxxxx) -->
@@ -10,7 +10,20 @@ This repository accompanies the manuscript:
 Grading on a Curve: Simulation-Based Benchmarks for the Biological Evaluation of Freshwater Typology Performance
 <!-- > **[Full title]** (202x). [Authors]. *[Journal]*. DOI: [xx.xxxx/xxxxxx]. Preprint: [link]. --> 
 
+It is an annonymized version of the repository which will be linked and made available upon acceptance. 
+Annonymiztaion was achieved through https://anonymous.4open.science/dashboard
+
 It contains the code to reproduce the results reported in the paper.
+The data can be found [here](https://zenodo.org/records/20701841?preview=1&token=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6ImEyZmUzNDQxLWQ5OTMtNDE4Zi05ZTNiLTEwNWM2YThlYmI2ZiIsImRhdGEiOnt9LCJyYW5kb20iOiJhNzhiNjRjMGI1NzM3YmFmZWM2ZDBjYTcxZWZlMTE3NiJ9.FdzRNr2_NgbB6VD6KOOAgEaH1Mp1WeDVWO_6lzwYJtlIiO-CGFY_3d8xvZT0OTiMdgaGdiePCZ4r75XMIegH8A).
+The linked Zenodo contains two kinds of data. 
+- Raw data which will be made available with extensive meta data upon acceptance of the manuscript
+- Intermediate Products from the analysis pipleine provided to ease the review process. The data will not be made broadly available upon acceptance. 
+
+The raw environmental data are openly available and not provided again here, as they contain some large files. All links are provided in the respective R scirpts (see code/prepare_environment).
+
+We provide the following intermediate products:
+- biological data (i.e., the raw data) with environmental variables from respective catchments.
+-  
 
 ---
 
