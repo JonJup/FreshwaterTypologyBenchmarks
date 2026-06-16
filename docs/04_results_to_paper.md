@@ -1,4 +1,4 @@
-=== WORKFLOW 1: Established typologies ===
+=== WORKFLOW 1: Empirical typologies ===
 ``` mermaid
 flowchart LR
 
@@ -9,26 +9,22 @@ classDef folder fill:#FFF9C4,stroke:#FBC02D,stroke-width:2px,color:#000
 classDef figure fill:#FFCCBC,stroke:#E64A19,stroke-width:2px,color:#000
 
 %% Folders
-D1[/"📁 007_evaluationsOriginals/"/]:::folder
+D1[/"📁 007_evaluations_empirical/"/]:::folder
 D2[/"📁 taxonomic_resolution/"/]:::folder
 D3[/"📁 spatial_scale/"/]:::folder
 D4[/"📁 taxa_counts/"/]:::folder
 
 %% Scripts
 S1(["📜 performance_of_empirical_typologies.R"]):::script
-S2(["📜 create_table_original_evaluations.R"]):::script
-S3(["📜 report_establied_typolgies.R"]):::script
-SF1(["📜 established_typologies_violin.R"]):::script
+SF1(["📜 results_figure1.R"]):::script
 
 %% Files
 F1["📄 results_empirical_typologies.rds"]:::file
-F2["📄 original_evaluations.rds"]:::file
+F3["📄 simulation_results_key_metrics.rds"]:::file
 
 %% Figures
-G1{{"🖼️ comparative_distribution_coherence_metrics_diatoms.png"}}:::figure
-G2{{"🖼️ comparative_distribution_coherence_metrics_fish.png"}}:::figure
-G3{{"🖼️ comparative_distribution_coherence_metrics_invertebrates.png"}}:::figure
-G4{{"🖼️ comparative_distribution_coherence_metrics_macrophytes.png"}}:::figure
+G1{{"🖼️ comparative_distribution_coherence_metrics.png"}}:::figure
+
 
 %% Edges
 D1 --> S1
@@ -36,14 +32,9 @@ D2 --> S1
 D3 --> S1
 D4 --> S1
 S1 --> F1
-F1 --> S2
-F1 --> S3
 F1 --> SF1
-S2 --> F2
+F3 --> SF1
 SF1 --> G1
-SF1 --> G2
-SF1 --> G3
-SF1 --> G4
 
 ```
 === WORKFLOW 2: Simulation evaluation & coherence figures ===
