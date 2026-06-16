@@ -9,9 +9,9 @@ classDef folder fill:#FFF9C4,stroke:#FBC02D,stroke-width:2px,color:#000
 
 %% 2. Define Scripts (Stadium shape)
 S1(["📜 09_simulate_data.R"]):::script
-S2(["📜 10_evaluate_established_typologies.R"]):::script
-S3(["📜 11_evaluate_simulated_typologies.R"]):::script
-S4(["📜 12_fit_qrf.R"]):::script
+S2(["📜 10_evaluate_empirical.R"]):::script
+S3(["📜 10_evaluate_typologies.R"]):::script
+S4(["📜 11_fit_qrf.R"]):::script
 	
 %% 3. Define Files (Standard rectangle)
 F1["📄 *taxon*_scheme.rds"]:::file
@@ -30,7 +30,7 @@ D7[/"📁 simulation_diagnostics/"/]:::folder
 D8[/"📁 006_simulated_data/"/]:::folder
 D9[/"📁 spatial_scale/"/]:::folder
 D10[/"📁 scheme_types/"/]:::folder
-D11[/"📁 007_evaluationsOriginals/"/]:::folder
+D11[/"📁 007_evaluations_empirical/"/]:::folder
 D12[/"📁 007_evaluations/"/]:::folder
 D13[/"📁 008_qrf/"/]:::folder
 D14[/"📁 taxonomic_resolution/"/]:::folder
