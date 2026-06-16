@@ -25,15 +25,15 @@ graph TD
     F5["📄 *taxon*_w_environment.rds"]:::file
 	
     %% 5. Define Folders (Trapezoid shape)
-    D1[/"📁 MIDFIRE/"/]:::folder
+    D1[/"📁 Raw Data/"/]:::folder
 	D2[/"📁 hydroDEM_parquet/"/]:::folder
-	D3[/"📁 typologies/"/]:::folder
+	
     
     D1 --> S1
      D2 --> S1
 F2 --> S3
 F1 --> S3
-D3 --> S3 
+
 F3 --> S4
 F5 --> S4
 
