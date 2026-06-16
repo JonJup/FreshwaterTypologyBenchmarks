@@ -1,3 +1,5 @@
+The Raw Data are the four files: diatoms.csv, fish.csv, invertebrates.csv, and macrophytes.csv available on Zenodo. 
+All files we have made available are marked with an *. 
 ``` mermaid
 
 graph TD
@@ -20,12 +22,12 @@ graph TD
 	%% 4. Define Files (Standard rectangle)
     F1["📄 *taxon*_w_catchment_id.rds"]:::file
     F2["📄 *EU_HYDRO_CATCHMENT*_w_variables.parquet"]:::file
-    F3["📄 eu_hydro_dem_w_enz.rds"]:::file
+    F3["📄 eu_hydro_dem_w_enz.rds*"]:::file
     F4["📄 *taxon*_scheme.rds"]:::file
-    F5["📄 *taxon*_w_environment.rds"]:::file
+    F5["📄 *taxon*_w_environment.rds*"]:::file
 	
     %% 5. Define Folders (Trapezoid shape)
-    D1[/"📁 Raw Data/"/]:::folder
+    D1[/"📁 Raw Data/*"/]:::folder
 	D2[/"📁 hydroDEM_parquet/"/]:::folder
 	
     
