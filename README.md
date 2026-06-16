@@ -22,8 +22,11 @@ The linked Zenodo contains two kinds of data.
 The raw environmental data are openly available and not provided again here, as they contain some large files. All links are provided in the respective R scirpts (see code/prepare_environment).
 
 We provide the following intermediate products:
-- biological data (i.e., the raw data) with environmental variables from respective catchments.
--  
+- biological data (i.e., the raw data) with environmental variables from respective catchments (biota/*taxon*_w_environment.rds).
+- The EU HydroDEM catchments with an assigned Environmental Zone (eu_hydro_dem_w_enz.rds).
+- 
+
+Please note that after the creation of schemes in [04_define_schemes.R](code/04_define_schemes.R) all steps were run seperately for each taxonomic group. Many scripts thus assume a prallel folder structure where data/ lives inside a folder called e.g., fish/. In the code these are marked with placeholders: e.g., fish_folder.
 
 ---
 
