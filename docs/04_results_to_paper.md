@@ -15,7 +15,7 @@ D3[/"📁 spatial_scale/"/]:::folder
 D4[/"📁 taxa_counts/"/]:::folder
 
 %% Scripts
-S1(["📜 explore_performance_of_original_typologies.R"]):::script
+S1(["📜 performance_of_empirical_typologies.R"]):::script
 S2(["📜 create_table_original_evaluations.R"]):::script
 S3(["📜 report_establied_typolgies.R"]):::script
 SF1(["📜 established_typologies_violin.R"]):::script
