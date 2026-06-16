@@ -1,7 +1,7 @@
 === WORKFLOW 1: Empirical typologies ===
-``` mermaid
-flowchart LR
 
+```mermaid
+flowchart LR
 classDef script fill:#E1F5FE,stroke:#0288D1,stroke-width:2px,color:#000
 classDef helper fill:#F3E5F5,stroke:#7B1FA2,stroke-width:2px,color:#000
 classDef file fill:#E8F5E9,stroke:#388E3C,stroke-width:2px,color:#000
@@ -9,116 +9,71 @@ classDef folder fill:#FFF9C4,stroke:#FBC02D,stroke-width:2px,color:#000
 classDef figure fill:#FFCCBC,stroke:#E64A19,stroke-width:2px,color:#000
 
 %% Folders
-D1[/"📁 007_evaluations_empirical/"/]:::folder
-D2[/"📁 taxonomic_resolution/"/]:::folder
-D3[/"📁 spatial_scale/"/]:::folder
-D4[/"📁 taxa_counts/"/]:::folder
+FD_EMP[/"📁 007_evaluations_empirical/"/]:::folder
+FD_EVAL[/"📁 007_evaluations/"/]:::folder
+FD_TAX[/"📁 taxonomic_resolution/"/]:::folder
+FD_SPA[/"📁 spatial_scale/"/]:::folder
+FD_CNT[/"📁 taxa_counts/"/]:::folder
+FD_SIM[/"📁 simulation_diagnostics/"/]:::folder
 
-%% Scripts
-S1(["📜 performance_of_empirical_typologies.R"]):::script
-SF1(["📜 results_figure1.R"]):::script
-
-%% Files
-F1["📄 results_empirical_typologies.rds"]:::file
-F3["📄 simulation_results_key_metrics.rds"]:::file
-
-%% Figures
-G1{{"🖼️ comparative_distribution_coherence_metrics.png"}}:::figure
-
-
-%% Edges
-D1 --> S1
-D2 --> S1
-D3 --> S1
-D4 --> S1
-S1 --> F1
-F1 --> SF1
-F3 --> SF1
-SF1 --> G1
-
-```
-=== WORKFLOW 2: Simulation evaluation & coherence figures ===
-``` mermaid
-flowchart LR
-
-classDef script fill:#E1F5FE,stroke:#0288D1,stroke-width:2px,color:#000
-classDef helper fill:#F3E5F5,stroke:#7B1FA2,stroke-width:2px,color:#000
-classDef file fill:#E8F5E9,stroke:#388E3C,stroke-width:2px,color:#000
-classDef folder fill:#FFF9C4,stroke:#FBC02D,stroke-width:2px,color:#000
-classDef figure fill:#FFCCBC,stroke:#E64A19,stroke-width:2px,color:#000
-
-%% Folders
-D1[/"📁 007_evaluations/"/]:::folder
-D2[/"📁 taxonomic_resolution/"/]:::folder
-D3[/"📁 spatial_scale/"/]:::folder
-D4[/"📁 taxa_counts/"/]:::folder
-D5[/"📁 simulation_diagnostics/"/]:::folder
-
-%% Scripts
-S1(["📜 figure31_data.R"]):::script
-S2(["📜 combine_evaluations.R"]):::script
-S3(["📜 results_discrimination_data.R"]):::script
-S4(["📜 summarize_results_simmulations.R"]):::script
+%% Data-prep Scripts
+S_PERF(["📜 performance_of_empirical_typologies.R"]):::script
+S_PREP(["📜 prepare_data_for_result_figure1.R"]):::script
+S_COMB(["📜 combine_evaluations.R"]):::script
+S_DISC(["📜 results_discrimination_data.R"]):::script
+S_SUMM(["📜 summarize_results_simmulations.R"]):::script
 
 %% Figure Scripts
-SF1(["📜 figure_31.R"]):::script
-SF2(["📜 31complement.R"]):::script
-SF3(["📜 fuzzy_quality_type_coherence.R"]):::script
-SF4(["📜 effect_of_quality_on_metrics.R"]):::script
-SF5(["📜 fuzzy_internal_type_coherence.R"]):::script
-SF6(["📜 results_discrimination.R"]):::script
+SF_FIG1(["📜 results_figure1.R"]):::script
+SF_QTC(["📜 fuzzy_quality_type_coherence.R"]):::script
+SF_EQM(["📜 effect_of_quality_on_metrics.R"]):::script
+SF_ITC(["📜 fuzzy_internal_type_coherence.R"]):::script
+SF_DISC(["📜 results_discrimination.R"]):::script
 
 %% Files
-F1["📄 simulation_results_key_metrics.rds"]:::file
-F2["📄 simulation_results_Nonkey_metrics.rds"]:::file
-F3["📄 combined_data.rds"]:::file
-F4["📄 results_discrimination.rds"]:::file
-F5["📄 results_established_typologies.rds (external)"]:::file
+F_EMP["📄 results_empirical_typologies.rds"]:::file
+F_SIM["📄 results_simulated_typologies.rds"]:::file
+F_COMB["📄 combined_data.rds"]:::file
+F_DISC["📄 results_discrimination.rds"]:::file
 
 %% Figures
-G1{{"🖼️ comparative_distribution_coherence_metrics.png"}}:::figure
-G2{{"🖼️ 31complement.png"}}:::figure
-G3{{"🖼️ fuzzy_metric_vs_quality.tiff"}}:::figure
-G4{{"🖼️ bland_altman_plot.png"}}:::figure
-G5{{"🖼️ effect_of_quality_on_metrics.png"}}:::figure
-G6{{"🖼️ fuzzy_internal_type_coherence1.tiff"}}:::figure
-G7{{"🖼️ results_discrimination.png"}}:::figure
+G_CDC{{"🖼️ comparative_distribution_coherence_metrics.png"}}:::figure
+G_BA{{"🖼️ bland_altman_plot.png"}}:::figure
 
-%% Edges
-D1 --> S1
-D1 --> S2
-D1 --> S3
-D2 --> S1
-D2 --> S3
-D3 --> S1
-D3 --> S3
-D4 --> S1
-D4 --> S3
-D5 --> S4
+%% Folder -> Script edges
+FD_EMP --> S_PERF
+FD_TAX --> S_PERF
+FD_SPA --> S_PERF
+FD_CNT --> S_PERF
 
-S1 --> F1
-S1 --> F2
-S2 --> F3
-S3 --> F4
+FD_EVAL --> S_PREP
+FD_EVAL --> S_COMB
+FD_EVAL --> S_DISC
+FD_TAX --> S_PREP
+FD_TAX --> S_DISC
+FD_SPA --> S_PREP
+FD_SPA --> S_DISC
+FD_CNT --> S_PREP
+FD_CNT --> S_DISC
+FD_SIM --> S_SUMM
 
-F1 --> SF1
-F5 --> SF1
-F5 --> SF2
-F2 --> SF2
+%% Script -> File edges
+S_PERF --> F_EMP
+S_PREP --> F_SIM
+S_COMB --> F_COMB
+S_DISC --> F_DISC
 
-F3 --> SF3
-F3 --> SF4
-F3 --> SF5
-F4 --> SF6
+%% File -> Figure-script edges
+F_EMP --> SF_FIG1
+F_SIM --> SF_FIG1
+F_COMB --> SF_QTC
+F_COMB --> SF_EQM
+F_COMB --> SF_ITC
+F_DISC --> SF_DISC
 
-SF1 --> G1
-SF2 --> G2
-SF3 --> G3
-SF3 --> G4
-SF4 --> G5
-SF5 --> G6
-SF6 --> G7
-
+%% Figure-script -> Figure edges
+SF_FIG1 --> G_CDC
+SF_QTC --> G_BA
 ```
 === WORKFLOW 3: HMSC & QRF (model-based analyses) ===
 ``` mermaid
@@ -214,9 +169,9 @@ SF2 --> G4
 SF2 --> G5
 SF2 --> G6
 SF3 --> G7
+``` 
+=== WORKFLOW 4: Maps & filtering diagnostics ===
 
-```
-=== WORKFLOW 4: MIDIFIRE maps & filtering diagnostics ===
 ``` mermaid
 flowchart LR
 
@@ -227,7 +182,7 @@ classDef folder fill:#FFF9C4,stroke:#FBC02D,stroke-width:2px,color:#000
 classDef figure fill:#FFCCBC,stroke:#E64A19,stroke-width:2px,color:#000
 
 %% Folders
-D1[/"📁 MIDIFIRE/"/]:::folder
+D1[/"📁 Original Data/"/]:::folder
 
 %% Scripts
 SF1(["📜 create_maps.R"]):::script
