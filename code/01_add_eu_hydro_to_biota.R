@@ -1,5 +1,4 @@
-################################################################################
-# Script Name:        add_euHydro_to_biota.R
+################################################################################*
 # Description:        Spatially joins EU-Hydro catchment IDs to biological
 #                     monitoring sites for four organism groups (diatoms, fish,
 #                     invertebrates, macrophytes). Each site is matched to its
@@ -9,25 +8,25 @@
 #                     - Input coordinates are assumed to be in EPSG:3035
 #                     - Catchment parquet tiles must contain an "ID" column
 #                     - Output is written to data/biota/
-################################################################################
+################################################################################*
 
-# setup -------------------------------------------------------------------
+# 1.0 setup -------------------------------------------------------------------
 library(sf)
-library(sfarrow)   # st_read_parquet() for GeoParquet files
+library(sfarrow)   
 library(dplyr)
 library(data.table)
 
-# load data ---------------------------------------------------------------
+# 2.0 load data ---------------------------------------------------------------
 
 # Discover all biota RDS files in the MIDFIRE data directory.
 # NOTE: list.files() returns files in alphabetical order, so bio.names below
 # must match that order. Verify with: list.files(..., pattern="\\.rds$")
 
-path_to_biodata <- c("")
+
 path_to_euhydrodem <- c("")
 
 files <- list.files(
-        path_to_biodata,   
+        "data/biota/",   
         pattern    = "\\.rds$",                  
         full.names = TRUE
 )
@@ -44,14 +43,17 @@ bio.names <- c("diatoms", "fish", "invertebrates", "macrophytes")
 # Sanity check: abort early rather than silently process the wrong files
 stopifnot(length(files) == length(bio.names))
 
-# main loop ---------------------------------------------------------------
+# 3.0 main loop ---------------------------------------------------------------
 for (i in seq_along(bio.names)) {
         
         message("STARTING ", bio.names[i])
         
         biota <- readRDS(files[i])
         
-        # prepare sites ---------------------------------------------------------
+        # ========================* 
+        ## 3.1 prepare sites ----
+        # ========================*
+        
         # Reduce to one row per site before the expensive spatial join so we are
         # not doing redundant point-in-polygon tests for repeated visits.
         
@@ -68,9 +70,12 @@ for (i in seq_along(bio.names)) {
         # Re-project to WGS84 to match the catchment parquet tiles
         sites <- st_transform(sites, 4326)
         
-        # spatial join across all catchment tiles --------------------------------
-        # Each tile covers a geographic subset; we collect matches from all tiles
-        # and then deduplicate.
+        # ================================================*
+        ## 3.2 spatial join across all catchment tiles ----
+        # ================================================*
+        
+        # Each tile covers a geographic subset.
+        # We collect matches from all tiles and then deduplicate.
         out.ls <- vector(mode = "list", length = length(vector_data))
         
         for (ii in seq_along(vector_data)) {
@@ -78,7 +83,8 @@ for (i in seq_along(bio.names)) {
                 message("  tile ", ii, " / ", length(vector_data))
                 
                 i.vec <- st_read_parquet(vector_data[ii])
-                i.vec <- st_make_valid(i.vec)   # repair any invalid geometries in the tile
+                # repair any invalid geometries in the tile
+                i.vec <- st_make_valid(i.vec)   
                 
                 # Point-in-polygon join: each site row gains the attributes of the
                 # catchment polygon it falls inside (left = sites, right = catchments)
@@ -99,17 +105,22 @@ for (i in seq_along(bio.names)) {
                 rm(i.vec, i.join)
         }
         
-        # Combine tile results and resolve sites that matched multiple tiles -----
+        # ================================================*
+        ## 3.3 Combine tile results  -----
+        # ================================================*
         out.dt <- rbindlist(out.ls)
         
         # If a site was matched in more than one tile, keep only the first match
         out.dt <- unique(out.dt, by = "siteID")
         
-        # Attach catchment ID back to the full biota table ----------------------
+        # Attach catchment ID back to the full biota table 
         # data.table right-join: all biota rows kept, ID added where available
         biota <- out.dt[biota, on = "siteID"]   
         
-        # Save ------------------------------------------------------------------
+        # ================================================*
+        ## 3.4 Save -----
+        # ================================================*
+        
         out_dir <- "data/biota"
         if (!dir.exists(out_dir)) dir.create(out_dir, recursive = TRUE)
         

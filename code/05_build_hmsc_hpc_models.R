@@ -38,7 +38,7 @@ if (file.exists("code/functions/remove_collinearity.R")) {
         stop("Custom function 'remove_collinearity.R' not found.")
 }
 
-# 2. Parse Command Line Arguments -------------------------------
+# 2. Parse Command Line Arguments -------------------------------------------
 # Retrieve arguments passed after the script name
 args <- commandArgs(trailingOnly = TRUE)
 

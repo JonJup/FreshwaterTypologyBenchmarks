@@ -1,21 +1,20 @@
-################################################################################
-# Script Name: 08_variation_partitioning.R
+################################################################################*
 # Description: For a single fitted HMSC model, import the posterior produced on
-#              the HPC, evaluate model fit (Tjur R2), and partition each taxon's
-#              explained variance into environmental, spatial (MEM) and biotic
+#              the HPC, evaluate model fit (Tjur R²), and partition each taxon's
+#              explained variance into environmental, spatial (MEM) and co-occurrence
 #              (random-effect) components, plus an unexplained "stochastic"
-#              fraction. Also derives a normalised per-variable importance score.
+#              fraction. Also derives a normalized per-variable importance score.
 #              Writes one .rds (VP table + importance + model-fit object).
 # Notes:       Run as a SLURM array job, one model per task:
 #                Rscript 08_variation_partitioning.R --iter_id <ID> \
 #                        --input <unfitted_model.rds> --output <out.rds>
 #              Models that fail PSRF or AUC, or score < 4 across the five
 #              posterior-predictive checks, are skipped (clean exit, no output).
-################################################################################
+################################################################################*
 
-# =======================================================
-# 1. setup ----
-# =======================================================
+
+# 1. setup --------------------------------------------------------------------
+
 args <- commandArgs(trailingOnly = TRUE)
 
 # Default values (optional)
@@ -49,9 +48,14 @@ suppressPackageStartupMessages({
         library(jsonify)
 })
 
-# --- 1.4 Load Data ---
+# 2. Load Data -----------------------------------------------------------------
 cat("Loading input data...\n")
 # Read your input data
+
+# =======================================================*
+## 2.1 Load Eval      -----------------------------------
+# =======================================================*
+
 
 # Derive the bare model name (e.g. "diatoms_0001") from the unfitted-model path.
 # It is reused as the key to locate every associated file for this model.
@@ -59,8 +63,7 @@ model.name <- gsub(pattern="data/001_unfitted_hmsc_models/","", input_file)
 model.name <- gsub(pattern="\\.rds", "", model.name)
 cat("model name is", model.name, "\n")
 
-# Anchor the look-up pattern to the START of the file name so a name like
-# "diatoms_0001" does not also match "diatoms_00011" (substring collision).
+# Anchor the look-up pattern to the START of the file name 
 file_pattern        <- paste0("^", model.name)
 # The fitted model is stored as several chain files -> a vector is expected here.
 target_fitted_files <- list.files("data/003_fitted_hmsc_models/", full.names = T, pattern = file_pattern)
@@ -68,9 +71,8 @@ target_fitted_files <- list.files("data/003_fitted_hmsc_models/", full.names = T
 eval        <- list.files("data/004_model_fit/", full.names = T, pattern = file_pattern)
 cat("eval is", eval, "\n")
 
-# Guard: the evaluation look-up must resolve to exactly one file. A bare
-# readRDS() on a length-0 (not found) or length-2 (ambiguous) vector would
-# otherwise fail with a cryptic error; stop loudly with a clear message instead.
+# The evaluation look-up must resolve to exactly one file. Stop loudly with a 
+# clear message instead of this is not the case. 
 if (length(eval) != 1L) {
         stop(sprintf("Expected exactly one model-fit file for '%s', found %d.",
                      model.name, length(eval)))
@@ -79,6 +81,11 @@ if (length(eval) != 1L) {
 cat("eval read ...")
 eval          <- readRDS(eval)
 cat("successful", "\n")
+
+# =======================================================*
+## 2.2 Check Model Fit -----------------------------------
+# =======================================================*
+
 # Check if PSRF (chain-convergence) test failed -> abort: model is untrustworthy
 if (!eval$psrf_passed){
 
@@ -107,13 +114,16 @@ if (eval$good_model < 4) {
         quit(save = "no", status = 0) 
 }
 
+# =======================================================*
+## 2.3 Read and Unpack JSON -----------------------------
+# =======================================================*
+
 # Read fitted models (Assuming list structure where [[1]] is the JSON)
 # We read them into a temp list first to avoid variable confusion
 loaded_json_list <- lapply(target_fitted_files, function(x) readRDS(x)[[1]])
 # Read unfitted model 
 unfittedModel    <- readRDS(input_file)
 
-# 1.4 Unpack JSON --------------------------------------------------------------
 cat("Unpacking JSON models...\n")
 # Using a large buffer size so the (potentially big) JSON chains deserialise
 fit_model_objects <- lapply(loaded_json_list, from_json, buffer_size = 524288000)
@@ -132,9 +142,9 @@ fitTF = importPosteriorFromHPC(
                 thin = 150,
                 transient = 10000)
 
-# ==============================================================================
-# x. COMPUTE AND EVALUATE PREDICTIONS ============================================
-# ==============================================================================
+
+# 3. Compute and test predictions  ------------------------------------------
+
 
 # Compute predicted values from model 
 i.preds     <- computePredictedValues(fitTF)
@@ -148,10 +158,10 @@ R2 <- i.MF$TjurR2
 # How many spatial predictors (Moran's Eigenvector Maps) did the model use?
 i.n.spatial <- sum(grepl(x = colnames(unfittedModel$XData), pattern = "MEM"))
 
-# ==============================================================================
-# x. Variation Partitioning ====================================================
-# ==============================================================================
-# NOTE: the env/(space)/bio labelling below assumes computeVariancePartitioning
+
+# 4. Variation Partitioning ---------------------------------------------------
+
+# The env/(space)/bio labelling below assumes computeVariancePartitioning
 # returns `vals` with one row per fixed-effect group PLUS exactly one random
 # effect (the biotic component). The recycled driver labels rely on that layout.
 
@@ -225,9 +235,9 @@ i.VP6 <- i.VP6[!grepl(x = names(i.VP6), pattern = "MEM|Random")]
 # normalize variable importance so the remaining predictors sum to 1
 i.VP6 <- i.VP6 / sum(i.VP6)
 
-# =======================================================
-# x. Export Results ----
-# =======================================================
+
+# 5. Save to File ----------------------------------------------------------------
+
 
 saveRDS(
         list(

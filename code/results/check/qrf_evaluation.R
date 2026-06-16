@@ -1,6 +1,11 @@
-# ==============================================================================
-# setup
-# ==============================================================================
+
+# assumes that the results of the quantile random forests are in a folder called
+# data/008_qrf/.; the evaluations of simulated typologies in data/007_evaluations/, and 
+# the variation partitioning results in data/005_variation_partitioning/
+
+
+# 1. setup ---------------------------------------------------------------------
+
 
 library(data.table)
 library(bundle)
@@ -8,29 +13,25 @@ library(workflows)
 library(ranger)
 library(tidymodels)
 
-setwd("E://arbeit/Projekte/02_ongoing/PULSE/wp1/data/")
 
-# ==============================================================================
-# prep loop
-# ==============================================================================
+# 2. prepare loop ------------------------------------------------------------
 
 taxa <- c("diatoms", "fish", "invertebrates", "macrophytes")
 results_importance <- list()
 results_metrics    <- list()
 results <- list()
-# ==============================================================================
-# loop
-# ==============================================================================
 
+
+# 3. Loop over Taxa -------------------------------------------------------
 for (t in taxa){
-        # Print status using sprintf
+        # Print status 
         cat(sprintf("Starting with %s\n", t))
         
         # Extract the first letter of the taxa and capitalize it (e.g., "fish" -> "F")
         taxa_letter <- toupper(substr(t, 1, 1))
         
         # Dynamically build the directory path and set it
-        dir_path <- sprintf("E://arbeit/Projekte/02_ongoing/PULSE/wp1/data/pulse%s", taxa_letter)
+        dir_path <- sprintf("data/pulse%s", taxa_letter)
         setwd(dir_path)
 
         all_files <- list.files("data/008_qrf/", pattern = "\\.rds$", full.names = TRUE)
@@ -60,10 +61,6 @@ for (t in taxa){
         met$taxon = t
         results_metrics[[length(results_metrics) + 1]] <-met
         
-# ==============================================================================
-# save to file
-# ==============================================================================
-
         cat("Changed WD \n")
         cat("\rLoaded evaluations \n")
         fileList <- list.files("data/007_evaluations/", full.names = TRUE)
@@ -143,9 +140,9 @@ for (t in taxa){
 
 
 
-                #===============================================================================
+
                 # 4. Define predictors and model ----
-                #===============================================================================
+
 
                 predictor_vec <- c(
                         "n_types", "variables", "env_asw", "fuzzy_npe",
@@ -160,9 +157,9 @@ for (t in taxa){
                         predictor_vec <- predictor_vec[!predictor_vec %in% c("fuzzy_npe")]
                 }
 
-                #===============================================================================
+
                 # 5. Split data and create folds ----
-                #===============================================================================
+
 
                 set.seed(1)
                 j.split <- initial_split(data = j.d)
@@ -173,9 +170,9 @@ for (t in taxa){
                 cat("\rTraining set:", nrow(j.train), "rows\n")
                 cat("\rTest set:", nrow(j.test), "rows\n")
 
-                #===============================================================================
+
                 # 6. Create recipe and preprocess ----
-                #===============================================================================
+
                 cat("\rCreating recipe...\n")
 
                 rf_recipe <-

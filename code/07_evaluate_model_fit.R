@@ -30,9 +30,11 @@ for (i in seq_along(args)) {
                 input_file <- args[i + 1]
         } else if (args[i] == "--output") {
                 output_file <- args[i + 1]
+        } else if (args[i] == "--output2") {
+                output_file2 <- args[i + 1]
         }
 }
-
+output_file2 <- paste0(output_file2)
 # Hard-fail early if the two mandatory paths are absent
 if (is.null(input_file) || is.null(output_file)) {
         stop("ERROR: Missing --input or --output argument.")
@@ -42,9 +44,13 @@ cat("\n========================================\n")
 cat("Processing Iteration:", iter_id, "\n")
 cat("Input file:", input_file, "\n")
 cat("Output file:", output_file, "\n")
+cat("Output file2 :", output_file2, "\n")
 cat("========================================\n\n")
 
-# 1.1 Load Libraries -----------------------------------------------------------
+# ================================================*
+## 1.1 Load Libraries ----------------------------
+# ================================================*
+
 suppressPackageStartupMessages({
         library(Hmsc)        # JSDM fitting / posterior import / model-fit metrics
         library(data.table)  # iterRecord container + := updates
@@ -52,7 +58,10 @@ suppressPackageStartupMessages({
         library(vegan)       # vegdist() for community dissimilarities
 })
 
-# 1.2 Load Custom Functions ----------------------------------------------------
+# ================================================*
+## 1.2 Load Custom Functions -----------------------
+# ================================================*
+
 # Use file.path for safer (OS-independent) path construction
 base_func_path <- "code/functions"
 cat("Loading custom functions from:", base_func_path, "\n")
@@ -63,7 +72,7 @@ source(file.path(base_func_path, "spec_env_test.r"))   # species-environment hel
 source(file.path(base_func_path, "site_occupancy.R"))  # ppc_prevalence(): prevalence PPC
 
 # =======================================================*
-# 1.3 Load Data
+## 1.3 Load Data ----
 # =======================================================*
 cat("Loading input data...\n")
 
@@ -102,7 +111,7 @@ spatial_data <- readRDS(all_spatial_files[target_spatial_index])
 cat("Spatial data successfully read.\n")
 
 # =======================================================*
-# 1.4 Unpack JSON
+## 1.4 Unpack JSON ----
 # =======================================================*
 
 cat("Unpacking JSON models...\n")
@@ -116,7 +125,8 @@ postList <- list(fit_model_objects[[1]][[1]], fit_model_objects[[2]][[1]])
 
 cat("Models unpacked. Importing posterior...\n")
 
-# 2. Check Convergence (PSRF) ==================================================
+# 2. Check Convergence (PSRF) --------------------------------------------------
+
 mcmc.samples <- 2150          # recorded posterior samples PER chain
 fitTF <- importPosteriorFromHPC(
         m = unfittedModel,
@@ -150,17 +160,31 @@ iterRecord <- data.table(
         prevalence_passed = NA
 )
 
-# =======================================================*
-#  3. Model Fit Checks
-# =======================================================*
+
+#  3. Check Model Fit -----------------------------------------------------------
+
 
 if (iterRecord$psrf_passed) {
         cat(model.name, ": PSRF Good (Exceedance:", round(exceedence.rate, 3), "). Checking AUC ...\n")
-
-        # --- 3.1 Check model fit  ----
+        
+        # =======================================================*
+        # --- 3.1 Check AUC  ----
+        # =======================================================*
         i.preds <- computePredictedValues(fitTF)                 # posterior predictive Y
         i.MF    <- evaluateModelFit(hM = fitTF, predY = i.preds) # per-species fit metrics
-
+        
+        # Save for later inspections 
+        out <- data.table(
+                scheme_id = spatial_data$scheme_id,
+                group = gsub("_.*", "", spatial_data$scheme_id),
+                taxon = colnames(fitTF$Y),
+                AUC = i.MF$AUC,
+                TR2 = i.MF$TjurR2,
+                RMSE = i.MF$RMSE
+        )
+        saveRDS(out, output_file2)
+        
+        
         AUC_failure <- sum(i.MF$AUC < 0.75, na.rm = TRUE)            # count of poorly-fit species
         AUC_failure_fraction <- AUC_failure / sum(!is.na(i.MF$AUC))  # as a fraction of scored species
         iterRecord[, AUC_failure := AUC_failure_fraction]
@@ -172,10 +196,12 @@ if (iterRecord$psrf_passed) {
                 cat(model.name, ": Bad AUC:", round(AUC_failure_fraction, 3), "\n")
         } else {
                 cat(model.name, ": Good AUC. Proceeding to PPC...\n")
-
-                # --- 3.2 Posterior Predictive Checks ----
-
-                # - 3.2.1 Predict Communities -
+                
+                # =======================================================*
+                ## 3.2 Posterior Predictive Checks ----
+                # =======================================================*
+        
+                ###  3.2.1 Predict Communities ----
                 # Use 100 posterior draws for prediction to save resources.
                 n_pred_samples <- 100
 
@@ -193,9 +219,9 @@ if (iterRecord$psrf_passed) {
                         expected = FALSE          # draw 0/1 occurrences, not probabilities
                 )
 
-                # -------------------------------------------------------------------------
-                # METRIC 1: Beta Diversity (Community Dissimilarity)
-                # -------------------------------------------------------------------------
+                
+                ### 3.2.2 Beta Diversity (Community Dissimilarity) ----
+                
 
                 Y_obs_clean <- fitTF$Y
                 # Bray-Curtis dissimilarity. With presence/absence (0/1) data this is
@@ -244,16 +270,16 @@ if (iterRecord$psrf_passed) {
                 #   >= 2.0 : FLAG   (model structure significantly biased)
                 iterRecord[,  betaDistr_passed := (beta_deviation_score < 2)]
 
-                # -------------------------------------------------------------------------
-                # METRIC 2: Species Co-occurrence (C-score)
-                # -------------------------------------------------------------------------
+               
+                ### 3.3.3 Species Co-occurrence (C-score) ----
+               
                 c_score_res <- ppc_cooccurrence(obs_comm = fitTF$Y, sim_comm_list = predCom)
                 iterRecord[, c_score_z := c_score_res$z_score]
                 iterRecord[, c_score_passed := !c_score_res$flag]   # passed = not flagged
 
-                # -------------------------------------------------------------------------
-                # METRIC 3: Species Prevalence Distribution
-                # -------------------------------------------------------------------------
+                
+                ### 3.3.4 Species Prevalence Distribution ----
+                
                 prev_res <- ppc_prevalence(obs_com = fitTF$Y, sim_comm_list = predCom)
                 iterRecord[, prevalence_flagged := sum(prev_res$summary_stats$flag)]  # # flagged species
                 iterRecord[, prevalence_passed := !prev_res$overall_flag]
@@ -265,7 +291,7 @@ if (iterRecord$psrf_passed) {
         cat(model.name, ": PSRF Bad. Skipping predictions.\n")
 }
 
-# 4. Save Output ===============================================================
+# 4. Save Output ---------------------------------------------------------------
 cat("Saving results to:", output_file, "\n")
 saveRDS(iterRecord, output_file)
 cat("Done.\n")

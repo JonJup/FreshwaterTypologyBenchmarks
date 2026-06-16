@@ -1,18 +1,18 @@
-# ==============================================================================
-#  Evaluation of Hmsc Model Performance
-# ==============================================================================
 
-# ==============================================================================
-#  1. Setup
-# ==============================================================================
+#  Evaluation of Hmsc Model Performance
+
+
+
+#  1. Setup -------------------------------------------------------
+
 library(data.table)
 library(tidyverse)
 library(magrittr)
 setwd("E://Arbeit/Projekte/02_ongoing/PULSE/wp1/data/")
 
-# ==============================================================================
-#  2. Load Data 
-# ==============================================================================
+
+#  2. Load Data  -------------------------------------------------------
+
 
 filesD <- list.files("pulseD/data/004_model_fit/", full.names =T)
 filesF <- list.files("pulseF/data/004_model_fit/", full.names =T)
@@ -24,9 +24,9 @@ dataF <- lapply(filesF, readRDS)
 dataI <- lapply(filesI, readRDS)
 dataM <- lapply(filesM, readRDS)
 
-# ==============================================================================
-#  3. Prepare Data
-# ==============================================================================
+
+#  3. Prepare Data -------------------------------------------------------
+
 
 dataD %<>% rbindlist() %>% mutate(taxon = "diatoms")
 dataF %<>% rbindlist() %>% mutate(taxon = "fish")
@@ -43,9 +43,9 @@ drop_id <- c(
 data <- data[!scheme %in% drop_id]
 
 
-# ==============================================================================
-#  4. Analyses
-# ==============================================================================
+
+#  4. Analyses -------------------------------------------------------
+
 
 # How many passed the psrf
 nrow(data)
@@ -62,9 +62,8 @@ data2 <- data[psrf_passed == TRUE]
 round(data2[good_model == TRUE, .N]/nrow(data2),2 )
 data2[good_model == TRUE, .N]
 
-# ==============================================================================
-#  5. Load Detailed Data 
-# ==============================================================================
+
+#  5. Load Detailed Data -------------------------------------------------------
 
 filesD <- list.files("pulseD/data/004_model_fit_detail/", full.names =T)
 filesF <- list.files("pulseF/data/004_model_fit_detail/", full.names =T)
@@ -76,9 +75,8 @@ dataF <- lapply(filesF, readRDS)
 dataI <- lapply(filesI, readRDS)
 dataM <- lapply(filesM, readRDS)
 
-# ==============================================================================
-#  3. Prepare Data
-# ==============================================================================
+
+#  3. Prepare Data -------------------------------------------------------
 
 dataD %<>% rbindlist() 
 dataF %<>% rbindlist() 
@@ -94,9 +92,9 @@ drop_id <- c(
 )
 data <- data[!scheme_id %in% drop_id]
 
-# ==============================================================================
-#  4. Analyses
-# ==============================================================================
+
+#  4. Analyses -------------------------------------------------------
+
 
 data[, round(mean(AUC, na.rm = T),2), by = "group"]
 data[, round(sd(AUC, na.rm = T)  ,2), by = "group"]

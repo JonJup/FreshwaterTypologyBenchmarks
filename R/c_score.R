@@ -1,3 +1,17 @@
+################################################################################*
+# Description:        Contains two functions for the posterior predictive checks. 
+#                     First, calculate_cscore() takes a presence absence community 
+#                     matrix and computes its c-scores (checkerboardness) as proposed by 
+#                     Stone & Roberts (1990). The second function, ppc_cooccurrence(), 
+#                     is a wrapper for calculate_cscores(), which can be applied to a list 
+#                     of simulated communities and compares them to an original/empirical one.
+#                     
+#                     
+# References: Stone, L., & Roberts, A. (1990). The checkerboard score and species distributions. Oecologia, 85(1), 74-79. 
+################################################################################*
+
+
+# Function 1 ----------------------------------
 #' Calculate C-score for co-occurrence analysis
 #' @param comm Community matrix (sites x species), presence-absence
 calculate_cscore <- function(comm) {
@@ -33,7 +47,7 @@ calculate_cscore <- function(comm) {
         return(c_score_sum / n_pairs)
 }
 
-
+# Function 2 ----------------------------------
 #' Posterior predictive check for co-occurrence patterns
 #' @param obs_comm Observed community matrix
 #' @param sim_comm_list List of simulated community matrices
