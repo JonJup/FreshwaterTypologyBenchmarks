@@ -22,15 +22,19 @@ library(data.table)
 # Discover all biota RDS files in the MIDFIRE data directory.
 # NOTE: list.files() returns files in alphabetical order, so bio.names below
 # must match that order. Verify with: list.files(..., pattern="\\.rds$")
+
+path_to_biodata <- c("")
+path_to_euhydrodem <- c("")
+
 files <- list.files(
-        "E:/Arbeit/data/biota/MIDFIRE/data/",   
+        path_to_biodata,   
         pattern    = "\\.rds$",                  
         full.names = TRUE
 )
 
 # All GeoParquet tiles covering the EU-Hydro catchment polygons
 vector_data <- list.files(
-        "E:/Arbeit/data/river_network/eu_hydro_dem/processedData/parquet_catchments/",
+        path_to_euhydrodem,
         full.names = TRUE
 )
 

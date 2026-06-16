@@ -7,9 +7,7 @@
 
 This repository accompanies the manuscript:    
 
-Jupke et al (*in preparation*) Grading on a Curve: Simulation-Based Benchmarks for the Biological Evaluation of Freshwater Typology Performance
-
-
+Grading on a Curve: Simulation-Based Benchmarks for the Biological Evaluation of Freshwater Typology Performance
 <!-- > **[Full title]** (202x). [Authors]. *[Journal]*. DOI: [xx.xxxx/xxxxxx]. Preprint: [link]. --> 
 
 It contains the code to reproduce the results reported in the paper.
@@ -18,7 +16,7 @@ It contains the code to reproduce the results reported in the paper.
 
 ## Overview
 
-We have developed **pan-European ecological benchmarks** for freshwater typology systems using a large [database](MIDFIRELINE) of diatoms, fish, invertebrates, and macrophytes, [joint species distribution models](https://github.com/hmsc-r/hmsc-hpc/tree/main) fitted independently to subsets of this database, a novel [modification algorithm](code/09_simulate_data.R) for environments  
+We have developed **pan-European ecological benchmarks** for freshwater typology systems using a large database of diatoms, fish, invertebrates, and macrophytes, [joint species distribution models](https://github.com/hmsc-r/hmsc-hpc/tree/main) fitted independently to subsets of this database, a novel [modification algorithm](code/09_simulate_data.R) for environments  
 
 The pipeline is deliberately modular so that each component — data preparation, HMSC fitting, QRF benchmarking, and evaluation — can be re-run independently against updated inputs.
 
@@ -26,7 +24,7 @@ The pipeline is deliberately modular so that each component — data preparation
 
 - **Taxonomic groups.** Diatoms, fish, macroinvertebrates, macrophytes.
 - **Geographic scope.** Continental Europe.
-- **Dataset.** ~400,000 biological samples harmonised from ~90 national and regional datasets, paired with catchment-derived environmental descriptors.
+- **Dataset.** ~400,000 biological samples harmonized from ~90 national and regional datasets, paired with catchment-derived environmental descriptors.
 
 ## Repository structure
 
@@ -52,18 +50,15 @@ The pipeline is deliberately modular so that each component — data preparation
 ## Data
 
 Raw biological and environmental data are **not redistributed** in this repository 
-but are available on [Zenodo](ADD MIDFIRE).
-
-Data from different processing steps will be shared upon request (jonjup@protonmail.com).
-
-The Shiny app loads fitted models remotely from the [Zenodo archive](https://zenodo.org/records/19554225) by default, so end users do not need to refit the models to explore the benchmarks.
+but are available on [Zenodo](https://zenodo.org/records/20701841?preview=1&token=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6ImVmMTZmMjg4LThlNzEtNDlmZS1hNmUwLTBjN2RkY2NjNTU2MiIsImRhdGEiOnt9LCJyYW5kb20iOiJlMTU0NTI0MDM1Y2MzNTQzMTFhMTNiZTAzYjgyMmIxNSJ9.ESQO7owKnBSoYGuFdBs73TONFFTaGuvP5BhJ--YTgzEssIlaYLgx25gINDf__tttRC9jSPkUTXj7Q06CAaEPNQ)
+Data from different processing steps will be shared upon request.
 
 ## Reproducing the analyses
 
 The full pipeline can be reproduced by running the numbered scripts in order.
 Dependencies between scripts and files is shown in the 'docs/' folder.  
 
-Parts of the analysis were run on HPC at the University of Helsinki. 
+Parts of the analysis were run on HPC at ANNONYMIZED FOR PEER REVIEW. 
 These used singularity containers. The code to compile the container is 
 available under 'hpc/'
 
@@ -74,31 +69,27 @@ available under 'hpc/'.
 
 ## Shiny application
 
-The PULSE Shiny app provides an interactive view of the benchmarks:
+The Shiny app provides an interactive view of the benchmarks:
 
 - QRF prediction and density visualisation for a user-supplied site or catchment
 - Batch prediction from uploaded CSV/Excel tables
 - KNN-based imputation of missing environmental predictors
 
-A hosted version is available **[HERE](https://jonjup.github.io/blog/static/pulse-app.html)**.
-The GitHub repository is [here](https://github.com/JonJup/TypologyBenchmarkPrediction).
+A hosted version is available **[HERE](https://pulse-shiny2-typecoherenceprediction.2.rahtiapp.fi/)**.
 
 ## Funding and acknowledgments
 
-This work was supported by the **DFG Walter Benjamin Fellowship** (grant no. 557888845). We thank the data providers listed in the manuscript supplement for sharing harmonised biological and environmental records.
-We also wish to thank the Finnish Computing Competence Infrastructure (FCCI) for supporting this project with computational and data storage resources.
+This work was supported by ANNONYMIZED FOR PEER REVIEW. 
+
+<!-- the **DFG Walter Benjamin Fellowship** (grant no. 557888845). We thank the data providers listed in the manuscript supplement for sharing harmonised biological and environmental records. --> 
+<!-- We also wish to thank the Finnish Computing Competence Infrastructure (FCCI) for supporting this project with computational and data storage resources. --> 
 
 
 ## Contact
 
-Questions, bug reports, and collaboration enquiries are welcome via GitHub issues, or by email to jonjup[at]protonmail.com
+Questions, bug reports, and collaboration enquiries are welcome via GitHub issues, or by email to ANNONYMIZED FOR PEER REVIEW.
 
 
 - **Code:** GPL-3.0
 - **Derived data and figures:** CC BY 4.0, unless otherwise stated in the relevant Zenodo record.
 - Source datasets retain their original licences; contact the listed providers for redistribution terms.
-
-## Contact
-
-Questions, bug reports, and collaboration enquiries are welcome via GitHub issues, or by email to **[corresponding author]**.
-

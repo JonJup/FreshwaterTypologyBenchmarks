@@ -1,26 +1,24 @@
-################################################################################
-# Script Name:        evaluate_typologies_array.R
-# Description:        evaluate coherence between simulated typologies and communities
-#                     (Array version - processes one iteration per job)
-#
-# Author:             Jonathan Jupke 
-# Date Created:       2025-09-15
-# Last Modified:      2025-11-06
-#
-# R Version:          R 4.5.1
-# Required Packages:  data.table, mvabund, parallel, vegan, parallelDist, 
-#                     doParallel, zetadiv, foreach, indicspecies, philentropy, 
-#                     labdsv, optparse
-#
-# Usage:              Rscript evaluate_typologies_array.R --iter_id <ID> --input <file> --output <file>
-# Notes:              Designed to run as SLURM array job - one iteration per job
-################################################################################
+################################################################################*
+# Script Name: 11_evaluate_simulated_typologies.R
+# Description: Evaluate coherence between the *simulated* typologies and the
+#              communities simulated under them (the output of 09_simulate_data.R),
+#              one iteration per job. For each simulated environment/community it
+#              computes classification strength, ANOSIM R, AUC of zeta decline
+#              (relative to a within-type baseline), PERMANOVA (hard and fuzzy),
+#              and a fuzzy Mantel test, then writes one long-format results table.
+
+# Notes:       Run as a SLURM array job, one iteration per task:
+#                Rscript 11_evaluate_simulated_typologies.R --iter_id <ID> \
+#                        --input <file> --output <file>
+################################################################################*
 
 
-# 1 SETUP -----
+# 1 SETUP ----------------------------------------------------------------------
 
+# ===================================== *
 ## 1.1 Parse command line arguments ----
-# Parse command line arguments
+# ===================================== *
+
 args <- commandArgs(trailingOnly = TRUE)
 
 # Default values (optional)
@@ -48,7 +46,9 @@ cat("Input file:", input_file, "\n")
 cat("Output file:", output_file, "\n")
 cat("========================================\n\n")
 
+# ===================================== *
 ## 1.2 libraries ----
+# ===================================== *
 suppressPackageStartupMessages({
         library(data.table)
         library(mvabund)
@@ -63,12 +63,13 @@ suppressPackageStartupMessages({
         library(indicspecies)
         library(robCompositions)
 })
-
+# ===================================== *
 ## 1.3 custom scripts ----
-source("../pulse/code/functions/render_table.R")
-source("../pulse/code/functions/prop_sample.R")
-source("../pulse/code/functions/calculate_auc.R")
-source("../pulse/code/functions/group_sites_by_cluster.R")
+# ===================================== *
+source("code/functions/render_table.R")
+source("code/functions/prop_sample.R")
+source("code/functions/calculate_auc.R")
+source("code/functions/group_sites_by_cluster.R")
 
 # Use all available cores for within-job parallelization
 cores_to_use <- 8
@@ -77,13 +78,15 @@ ss_files        <- list.files("data/misc/spatial_scale/", full.names = T)
 cat("length of ss files is:" ,length(ss_files), "\n")
 cat(ss_files[1], "\n")
 
-# 2 LOAD DATA -----
+# 2 LOAD DATA ------------------------------------------------------------------
+
+
 cat("Loading input data...")
 # Read your input data
 cat("✅\n")
 i.file <- readRDS(input_file)
 cat("Loading spatial scale data...\n")
-i.ss.index <- sub("006_simulated_data", "misc/spatial_scale/", x = input_file)
+i.ss.index <- sub("006_simulated_data", "misc/spatial_scale", x = input_file)
 cat(i.ss.index, "\n")
 i.ss.index <- which(ss_files == i.ss.index)
 cat("i.ss.index: ",i.ss.index, "\n")
@@ -93,25 +96,34 @@ if (length(i.ss.index) == 0) {
 }
 i.ss <- readRDS(ss_files[i.ss.index])
 cat("✅\n")
-# 3 PROCESS THIS ITERATION -----
+
+# 3 PROCESS THIS ITERATION -------------------------------------------------------
+
 cat("Starting analysis for iteration", iter_id, "...\n")
 
 # list to store all the results of this loop
 out <- list()
 
-#- Read the simulated data sets created in script 08_simulate_data.R
-#- Each of these files is a list with the following elements:
+# Read the simulated data sets created in script 09_simulate_data.R
+# Each of these files is a list with the following elements:
 # data = a predicted community data set,
 # number_of_variables = the number of variables the typology is based on
 # contraction_points  = the factor by which samples are contracted in environmental space
 # contraction_centroids= the factor by which cluster centroids are contracted in environmental space
 # variable_importance = cumulative importance of variables on which the typology is based
-# asw = average silhouette width of environmental clusters
+# asw = average silhouette width of environmental clusters (environmental type coherence in document)
 # hard_cluster_assignment = type assignment of each sample in hard clustering
 # fuzzy_cluster_assignment =  type assignment of each sample in fuzzy clustering
 
-# 2. Computations
-## 2.1 IO and Distance Matrices ----
+# ======================================================= *
+## -- 3.1 IO and Distance Matrices ----
+# ======================================================= *
+# 
+# i.file$data is a list with one entry per artificial environment; each entry
+# holds the (up to) 5 community data sets simulated for that environment.
+# Flattening one level gives i.N2 (~ 5 * i.N1) communities, and the mapping
+# "community `evaluation` -> its environment" is ceiling(evaluation / 5), which
+# is used repeatedly below.
 i.data <- unlist(i.file$data, recursive = F)
 # number of artificial environments
 i.N1    <- length(i.file$data)
@@ -133,8 +145,12 @@ i.distance.matrices <-
                 how = "list",
                 threads = 4
         )
-## 2.1 CS -----
-cat("Start CS Analysis...\n")
+
+# ======================================================= *
+## -- 3.2 Classification Strength ----
+# ======================================================= *
+
+cat("Start Classification Strength Analysis...\n")
 i.cs0 <- sapply(
         1:length(i.distance.matrices),
         function(x) {
@@ -155,7 +171,9 @@ rm(i.cs0)
 rm(i.cs1)
 rm(i.cs2)
 rm(i.cs3)
-## 2.2 ANOSIM -----
+# ======================================================= *
+## -- 3.3 ANOSIM ----
+# ======================================================= *
 cat("Start ANOSIM...\n")
 # Preallocate objects
 i.out.r.min <- numeric(length = i.N1)
@@ -257,7 +275,9 @@ rm(results)
 rm(eval_results)
 
 
-## 2.3 AUC Zeta ----
+# ======================================================= *
+## -- 3.4 AUC Zeta ----
+# ======================================================= *
 cat("Start AUC Zeta...\n")
 # The AUC baseline is the inter-type AUCζ that intra-type values can be compared to
 baseline <-numeric(i.N2)
@@ -266,7 +286,8 @@ zeta_orders <- 1:10
 zeta_x      <- 1:10
 n_reps      <- 10
 
-# Setup parallel backend
+# NOTE: this AUCzeta baseline loop runs SERIALLY (no cluster is started here);
+# the "setup parallel backend" intent was never wired up. Left as-is.
 
 for (evaluation in seq_len(i.N2)) {
 
@@ -370,11 +391,12 @@ out[[length(out) + 1]] <- render_table(results2$min, "AucZeta min")
 out[[length(out) + 1]] <- render_table(results2$mean, "AucZeta mean")
 out[[length(out) + 1]] <- render_table(results2$max, "AucZeta max")
 rm(baseline)
-# ================== #
-# 2.4 PERMANOVA ---- #
-# ================== #
+# ======================================================= *
+## -- 3.5 PERMANOVA ----
+# ======================================================= *
 cat("Start PERMANOVA ...\n")
-i.r <- i.p  <- i.F  <-
+# Pre-allocate result vectors (one slot per simulated community).
+i.r <- i.p  <- 
         vector(mode = "numeric", length = i.N2)
 for (evaluation in 1:i.N2){
         evaluation2 <- ceiling(evaluation/5)
@@ -390,7 +412,7 @@ out[[length(out) + 1]] <- render_table(i.r, "PERMANOVA R2")
 out[[length(out) + 1]] <- render_table(i.p, "PERMANOVA p")
 
 cat("Start Fuzzy PERMANOVA ...\n")
-i.r <- i.p  <- i.F  <-
+i.r <- i.p  <- 
         vector(mode = "numeric", length = i.N2)
 for (evaluation in 1:i.N2){
         evaluation2 <- ceiling(evaluation/5)
@@ -406,84 +428,28 @@ rm(perma, evaluation)
 out[[length(out) + 1]] <- render_table(i.r, "PERMANOVA Fuzzy R2")
 out[[length(out) + 1]] <- render_table(i.p, "PERMANOVA Fuzzy p")
 
-## 2.5 Indicator Value ----
-# Setup parallel backend
-cat("Start Indicator Value ...\n")
-cl <- makeCluster(cores_to_use)
-registerDoParallel(cl)
-
-# Start parallel loop 
-results <- foreach(evaluation = 1:i.N1, .combine = "rbind", .packages = c('indicspecies', 'permute')) %dopar% {
-        
-        out1 <- c()
-        out2 <- c()
-        
-        isa <- lapply(
-                i.file$data[[evaluation]], 
-                function(x) 
-                        multipatt(x, 
-                                i.file$hard_cluster_assignment[[evaluation]],
-                                func = "indval",
-                                control = permute::how(nperm = 999),
-                                duleg = T
-                        )
-        )
-        holm_p <- lapply(
-                isa, 
-                function(x)
-                p.adjust(x$sign$p.value, 
-                        method = "holm")       
-        )                 
-
-        for (ii in 1:length(holm_p)){
-                if (any(is.na(holm_p[[ii]]))) holm_p[[ii]] <- holm_p[[ii]][-which(is.na(holm_p[[ii]]))]
-                out1[ii] <-  sum(holm_p[[ii]]<=0.05)/length(holm_p[[ii]])
-                out2[ii] <- mean(holm_p[[ii]])
-        }       
-
-        cbind(out1, out2)
-}
-
-out[[length(out) + 1]] <- render_table(results[,1], "isa_number")
-out[[length(out) + 1]] <- render_table(results[,2], "isa_avg_p")
-rm(results)
-
-## 2.6 ISAMIC ----
-cat("Start ISAMIC...\n")
-j.isamic <- vector(mode = "numeric", length = i.N2)
-for (evaluation in 1:i.N2){
-        isa <- isamic(
-                comm = i.data[[evaluation]],
-                clustering = i.file$hard_cluster_assignment[[ceiling(evaluation/5)]])
-        j.isamic[evaluation] <- mean(isa)
-}
-rm(isa, evaluation)
-out[[length(out) + 1]] <- render_table(j.isamic, "isamic")
-rm(j.isamic)
-
-## 2.7 Fuzzy Evaluations ----
-cat("Start FUZZY... \n")
-i.fuzzy.out1 <-
-        i.fuzzy.out2 <- numeric(i.N2)
-# set family for MVGLM
-i.fam <- "binary"
+# ======================================================= *
+## 3.6 Fuzzy Mantel 
+# ======================================================= *
+cat("Start Fuzzy Mantel ... \n")
+# Preallocate object for Results of mantel analysis 
+i.fuzzy.out <- numeric(i.N2)
 cluster_indices     <- ceiling(1:i.N2 / 5)
 
 for (evaluation in 1:i.N2){
-        
         # Create matrix for fuzzy type memberships for this iteration
         current_memb <- as.matrix(i.file$fuzzy_cluster_assignment[[cluster_indices[evaluation]]]$memb)
         # Compute Mantel test
-        i.fuzzy.out2[evaluation] <- mantel(
+        i.fuzzy.out[evaluation] <- mantel(
                 xdis = i.distance.matrices[[evaluation]],
                 ydis = robCompositions::aDist(current_memb),
                 permutations = 1)[["statistic"]]
 
 }
-out[[length(out) + 1]] <- render_table(i.fuzzy.out2, "fuzzy_mantel")
+out[[length(out) + 1]] <- render_table(i.fuzzy.out, "fuzzy_mantel")
 
 
-# # 4 SAVE RESULTS -----
+# # 4 SAVE RESULTS -------------------------------------------------------------
 out2 <- rbindlist(out, fill =T )
 saveRDS(out2, file = output_file)
 

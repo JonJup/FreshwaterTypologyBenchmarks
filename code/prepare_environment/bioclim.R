@@ -1,6 +1,4 @@
 # ################################################################################
-# # Script name:  bioclim.R
-# #
 # # Purpose:      This script prepares the BioClimatic Variables from CHELSA for
 #                 EU Hydro DEM catchments
 #                 

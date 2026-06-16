@@ -1,65 +1,34 @@
-################################################################################
-# Script Name:        diagnostic_simulation_pipeline.R
-#
-# Purpose:            This script generates synthetic community-composition data
-#                     that mimic realistic freshwater biomonitoring samples. It
-#                     does so by:
-#
-#                       1. Loading a fitted HMSC model.
-#                       2. Creating artificial environmental gradients by
-#                          clustering observed environmental conditions (k-means),
-#                          then systematically stretching / compressing those
-#                          clusters along their discriminant axes (LDA-based
-#                          manipulation) to produce environments with known,
-#                          controlled typological quality.
-#                       3. Validating those synthetic environments against the
-#                          real-world catchment envelope (Isolation Forest +
-#                          Mahalanobis distance) to ensure they remain plausible.
-#                       4. Feeding validated synthetic environments into the
-#                          fitted HMSC model to predict community composition.
-#                       5. Performing fuzzy classification (FCM) on the validated
-#                          environments and computing Normalised Partitioning
-#                          Entropy (NPE) as a measure of classification crispness.
-#
-#                     These simulated datasets have are used for benchmarking
-#                     typology systems. The "quality_factor" parameter controls
-#                     how distinct the types are — low values compress clusters
-#                     (overlapping types), high values separate them
-#                     (crisp types).
-#
-#                     In addition to production outputs (predictions, cluster
-#                     assignments, fuzzy memberships), this version writes a
-#                     diagnostic table recording every parameter combination
-#                     tried, including those that failed filters, so we can
-#                     understand where and why simulations are rejected.
-#
-# Author:             Jonathan Jupke
-# Date Created:       2026-03-16
-#
-# R Version:          R 4.5.2
-# Required Packages:  data.table, kernlab, cluster, vegclust, Hmsc, isotree,
-#                     jsonify, sf, arrow, dplyr, MASS 
-#
-# Execution:          Called from SLURM array jobs. Each array task processes
-#                     one HMSC model (one biological group × typology scheme).
-#
-# Output files:
-#   1. <output_file>                — Production list: predictions, clusters,
-#                                     fuzzy memberships, ASW, NPE, metadata.
-#   2. data/misc/simulation_diagnostics/<output_file> — Diagnostic data.table:
-#                                     one row per parameter combo per iteration,
-#                                     with filter pass/fail status and metrics.
-################################################################################
+################################################################################*
+# Description: Generate synthetic community-composition data that mimic realistic
+#              freshwater samples, as training for Benchmark Generation Models.
+#              Loads a fitted HMSC model; builds artificial environmental gradients
+#              by k-means clustering observed conditions and stretching/compressing
+#              clusters along LDA discriminant axes (quality_factor < 1 = overlapping
+#              types, > 1 = crisp types); validates each synthetic environment
+#              against the real catchment envelope (Isolation Forest + Mahalanobis);
+#              predicts community composition with the HMSC model; and runs fuzzy
+#              (FCM) classification with Normalised Partitioning Entropy (NPE).
+#              Writes a production list (predictions, hard/fuzzy cluster assignments,
+#              ASW, NPE, metadata) plus a diagnostic table logging every parameter
+#              combination tried and where/why it passed or failed each filter.
+#              
+# Notes:       
+#              Run from SLURM array jobs, one HMSC model per task:
+#                Rscript 09_simulate_data.R --iter_id <ID> \
+#                        --input <unfitted_model.rds> --output <out.rds>
+################################################################################*
 
 
-# ==============================================================================
-# 1. SETUP AND CONFIGURATION
-# ==============================================================================
+
+# 1. SETUP AND CONFIGURATION ---------------------------------------------------
+
 # Parse command-line arguments, load libraries, source helper functions, and
 # set global simulation parameters.
-# ==============================================================================
 
-## 1.1 Arguments Parsing -------------------------------------------------------
+# =============================================================================*
+## 1.1 Arguments Parsing ----
+# =============================================================================*
+
 # The script expects three named arguments from the command line:
 #   --iter_id  : An identifier for this SLURM array task (informational only;
 #                not used in computation, just printed for log traceability).
@@ -95,7 +64,9 @@ cat("Input file:  ", input_file, "\n")
 cat("Output file: ", output_file, "\n")
 cat("========================================\n\n")
 
-## 1.2 Load Libraries ----------------------------------------------------------
+# =============================================================================*
+## 1.2 Load Libraries ----
+# =============================================================================*
 
 suppressPackageStartupMessages({
         library(data.table)   
@@ -110,8 +81,11 @@ suppressPackageStartupMessages({
         library(dplyr)        
 })
 
-## 1.3 Load Helper Scripts -----------------------------------------------------
-# Two custom functions sourced from the PULSE project:
+# =============================================================================*
+## 1.3 Load Helper Scripts ----
+# =============================================================================*
+
+# Two custom functions
 #
 # normalized_partitioning_entropy.R:
 #   Defines NPE(), which takes a vegclust object and returns Normalised
@@ -133,15 +107,16 @@ suppressPackageStartupMessages({
 #   (which may differ from the requested quality_factor due to data geometry).
 
 cat("Loading helper functions ...\n")
-source("../pulse/code/functions/normalized_partitioning_entropy.R")
-source("../pulse/code/functions/adjust_clusters_lda.R")
-# Helper: map quality values to bin indices
+source("code/functions/normalized_partitioning_entropy.R")
+source("code/functions/adjust_clusters_lda.R")
+
+# Internally defined Helper: map quality values to bin indices
 get_bin <- function(q) {
         findInterval(q, quality_bins, rightmost.closed = TRUE)
 }
-# ---------------------------------------------------------------------------
-# Global simulation parameters
-# ---------------------------------------------------------------------------
+# =============================================================================*
+## 1.4 Global simulation parameters ----
+# =============================================================================*
 # N_TARGET_SUCCESSES: How many validated simulation environments we need.
 #   Each "success" is one environment that passed both the Isolation Forest
 #   and Mahalanobis plausibility checks, and was used to generate HMSC
@@ -152,7 +127,7 @@ get_bin <- function(q) {
 #   combinations fail validation (e.g., for models with unusual environmental
 #   spaces). Each iteration tries one random variable subset × one random k,
 #   then tests five quality_factor values within that setup.
-# ---------------------------------------------------------------------------
+
 N_TARGET_SUCCESSES <- 60
 MAX_ITERATIONS     <- 3000
 
@@ -163,15 +138,17 @@ MAX_ITERATIONS     <- 3000
 set.seed(1)
 
 
-# ==============================================================================
-# 2. DATA LOADING
-# ==============================================================================
+# 2. DATA LOADING --------------------------------------------------------------
+
+
 # Load the HMSC model (unfitted structure + fitted posterior chains), model
 # evaluation metrics, typology scheme metadata, environmental data, and
 # catchment-level data used for outlier detection baselines.
-# ==============================================================================
 
-## 2.1 Identify Model and Files ------------------------------------------------
+# ======================================================================*
+## 2.1 Identify Model and Files --------------------------------------
+# ======================================================================*
+
 # The model_name (e.g., "diatoms_0001") is extracted from the input path
 # and used as a pattern to find all associated files across the project's
 # directory structure.
@@ -180,28 +157,21 @@ cat("Identifying files...\n")
 model_name <- gsub(pattern = "data/001_unfitted_hmsc_models/", "", input_file)
 model_name <- gsub(pattern = "\\.rds", "", model_name)
 
+path_unfitted_model <- list.files("data/001_unfitted_hmsc_models/", full.names = TRUE, pattern = model_name)
 path_eval           <- list.files("data/004_model_fit/", full.names = TRUE, pattern = model_name)
 path_fitted_files   <- list.files("data/003_fitted_hmsc_models/", full.names = TRUE, pattern = model_name)
 path_vp             <- list.files("data/005_variation_partitioning/", full.names = TRUE, pattern = model_name)
 path_unscaled_env   <- list.files("data/misc/unscaled_environments/", full.names = TRUE, pattern = model_name)
-path_unfitted_model <- list.files("data/001_unfitted_hmsc_models/", full.names = TRUE, pattern = model_name)
-path_catchments     <- list.files("../pulse/data/catchments/", full.names = TRUE)
+path_catchments     <- list.files("data/catchments/", full.names = TRUE)
 
-## 2.2 Quality Check -----------------------------------------------------------
+# ======================================================================*
+## 2.2 Quality Check ----------------------------------------------
+# ======================================================================*
+
 # Before investing computation in simulation, verify the HMSC model is
 # trustworthy. The evaluation file contains binary pass/fail flags for five
-# diagnostics:
-#   - psrf_passed:       Potential Scale Reduction Factor (Gelman-Rubin) ≈ 1
-#                         → chains have converged.
-#   - AUC_passed:        Area Under ROC Curve is acceptable → model has
-#                         predictive discrimination.
-#   - betaDistr_passed:  Beta (species response) distributions are well-behaved.
-#   - c_score_passed:    C-score (checkerboard metric) → residual species
-#                         co-occurrence patterns are captured.
-#   - prevalence_passed: Model handles rare/common species appropriately.
-#
-# We require at least 4/5 to proceed. This prevents wasting HPC time on
-# models whose predictions would be unreliable.
+# diagnostics. We require at least 4/5 to proceed. This prevents wasting HPC time
+#  on models whose predictions are unreliable.
 
 eval_data <- readRDS(path_eval)
 eval_data[, good_model := psrf_passed + AUC_passed + betaDistr_passed + c_score_passed + prevalence_passed]
@@ -214,7 +184,10 @@ if (eval_data$good_model < 4) {
 
 cat("Model quality score:", eval_data$good_model, "/ 5 — proceeding.\n")
 
-## 2.3 Load HMSC Models --------------------------------------------------------
+# ======================================================================*
+## 2.3 Load HMSC Models ----
+# ======================================================================*
+
 # Two objects are needed:
 #   1. unfitted_model: The HMSC model structure (formula, priors, random
 #      effects specification, training data). This is the "skeleton" that
@@ -235,14 +208,14 @@ fit_model_objects <- lapply(loaded_json_list, from_json, buffer_size = 524288000
 post_list         <- list(fit_model_objects[[1]][[1]], fit_model_objects[[2]][[1]])
 cat("Fitted model loaded.\n")
 
-## 2.4 Load Environmental & Spatial Data ---------------------------------------
+# ======================================================================*
+## 2.4 Load Environmental & Spatial Data ------
+# ======================================================================*
+
 # schemes: A data.table mapping each model (scheme_id) to its associated
 #   typology metadata — which Environmental Zones (EnZ) it covers, how many
 #   samples it has, etc. This determines which catchment data to use for
 #   the outlier detection baseline.
-#
-# env_val: Environmental validation data (loaded but not directly used in
-#   this script; kept for compatibility with downstream code).
 #
 # eu_hydro_enz: A lookup table linking EU-Hydro river segment IDs to their
 #   Environmental Zone (EnZ) classification. This is joined with catchment
@@ -255,8 +228,7 @@ schemes        <- readRDS(schemes_file)
 current_scheme <- schemes[scheme_id == model_name]
 cat("Schemes loaded.\n")
 
-env_val       <- readRDS("../pulse/data/environmental_validation.rds")
-eu_hydro_enz  <- readRDS("../pulse/data/eu_hydro_dem_w_enz.rds")
+eu_hydro_enz  <- readRDS("data/eu_hydro_dem_w_enz.rds")
 cat("Validation data loaded.\n")
 
 # Catchment processing:
@@ -280,17 +252,21 @@ for (i in seq_along(path_catchments)){
 
 all_catchments          <- rbindlist(catchment_list, use.names = TRUE)
 catchment_split_by_zone <- split(all_catchments, by = "EnZ_name")
+
 rm(path_catchments, eu_hydro_enz, catchment_list, all_catchments)
 cat("done.\n")
 
-## 2.5 Load Unscaled Environment -----------------------------------------------
+# ======================================================================*
+## 2.5 Load Unscaled Environment ----------
+# ======================================================================*
+
 # unscaled_env: The environmental conditions at the HMSC model's training
 # sites, in their original (unscaled) measurement units. The HMSC model
 # internally works with scaled (standardised) variables, but the outlier
 # detection checks (ISO forest, Mahalanobis) operate on unscaled values
 # because the catchment reference data is also unscaled.
 #
-# This distinction matters: we manipulate clusters in *both* spaces:
+# This distinction matters: we manipulate clusters in both spaces:
 #   - Unscaled space: for validation (do the synthetic environments look
 #     like real catchments?)
 #   - Scaled space: for HMSC prediction (the model expects standardised inputs)
@@ -298,9 +274,9 @@ cat("done.\n")
 unscaled_env <- readRDS(path_unscaled_env)
 
 
-# ==============================================================================
-# 3. PRE-PROCESSING: OUTLIER DETECTION BASELINE
-# ==============================================================================
+# 3. PRE-PROCESSING: OUTLIER DETECTION BASELINE --------------------------------
+
+
 # Before the simulation loop, establish reference distributions from the real
 # catchment data. These are used in the loop to check whether each synthetic
 # environment is "plausible" — i.e., whether it falls within the range of
@@ -313,9 +289,10 @@ unscaled_env <- readRDS(path_unscaled_env)
 #   2. Mahalanobis Distance: A parametric measure of how far a point is from
 #      the multivariate mean, accounting for variable correlations. Points
 #      beyond a chi-squared threshold are considered outliers.
-# ==============================================================================
 
-## 3.1 Isolation Forest on Catchment Data --------------------------------------
+# ======================================================================*
+## 3.1 Isolation Forest -----------------------
+# ======================================================================*
 # Subset catchments to only the Environmental Zones relevant to this model,
 # then train the isolation forest on those catchments.
 #
@@ -348,19 +325,22 @@ score_mean <- mean(iso_scores)
 score_sd   <- sd(iso_scores)
 
 # Two thresholds for isolation forests:
-# iso_threshold (0.10): The fraction of sites allowed to fail — used to compute
+# iso_threshold (0.15): The fraction of sites allowed to fail — used to compute
 #   the minimum number of sites that must pass the Z-score filter for an entire
-#   simulated environment to be accepted. With 0.10, we require ≥ 90% of sites
+#   simulated environment to be accepted. With 0.15, we require ≥ 85% of sites
 #   to pass.
-# iso_threshold2 (1): The per-site Z-score ceiling. Sites with anomaly scores
-#   more than 1 standard deviations above the mean are flagged as implausible
+# iso_threshold2 (1.5): The per-site Z-score ceiling. Sites with anomaly scores
+#   more than 1.5 standard deviations above the mean are flagged as implausible
 #   and removed before the count-based filter is applied.
 iso_threshold  <- 0.15
 iso_threshold2 <- 1.5
 
 cat(sprintf("Isolation Forest baseline: mean = %.4f, sd = %.4f\n", score_mean, score_sd))
 
-## 3.2 Mahalanobis Distance Baseline -------------------------------------------
+# ======================================================================*
+## 3.2 Mahalanobis Distance Baseline -----------
+# ======================================================================*
+
 # Compute the covariance matrix and mean vector of the catchment data. These
 # define the multivariate normal envelope against which simulated environments
 # are checked.
@@ -377,21 +357,20 @@ cat(sprintf("Mahalanobis threshold (chi-sq 0.95, df=%d): %.2f\n",
             ncol(catchment_matrix), maha_threshold))
 
 
-# ==============================================================================
-# 4. DIAGNOSTIC SIMULATION LOOP
-# ==============================================================================
+# 4. DIAGNOSTIC SIMULATION LOOP ------------------------------------------------
+
 # This is the heart of the script. Each iteration of the outer loop:
 #
-#   1. Randomly selects a subset of environmental variables.
-#   2. Randomly selects k (number of clusters) and runs k-means.
+#   1. Randomly selects a subset of environmental variables. (4.3)
+#   2. Randomly selects k (number of clusters) and runs k-means. (4.4)
 #   3. Checks whether the resulting clusters have clear discriminant
-#      structure (LDA variance check).
+#      structure (LDA variance check). (4.6)
 #   4. For each of several quality_factor values (0.5 to 1.5):
 #      a. Manipulates the cluster structure via LDA-based adjustment.
 #      b. Validates the resulting environment against the catchment envelope.
 #      c. If valid: builds the HMSC prediction environment, computes ASW,
 #         runs fuzzy classification, predicts community composition.
-#
+#      In (4.7 & 4.8)
 # The loop continues until N_TARGET_SUCCESSES environments pass all checks,
 # or MAX_ITERATIONS is reached.
 #
@@ -399,9 +378,12 @@ cat(sprintf("Mahalanobis threshold (chi-sq 0.95, df=%d): %.2f\n",
 # Every parameter combination is recorded — pass or fail — with the specific
 # failure reason. This lets us understand the simulation's "acceptance rate"
 # and diagnose whether filters are too strict/lenient for particular models.
-# ==============================================================================
 
-## 4.0 Prepare HMSC Model and Posterior ----------------------------------------
+
+# ======================================================================*
+## 4.1 Prepare HMSC Model and Posterior ----
+# ======================================================================*-
+
 # Reconstruct the full fitted HMSC model by merging the unfitted structure
 # with the HPC-exported posterior chains.
 #
@@ -420,9 +402,8 @@ cat("Importing posterior from HPC object...\n")
 vp_data <- readRDS(path_vp)
 # vp_data contains variation partitioning results — specifically,
 # vp_data$importance is a named vector giving each environmental variable's
-# contribution to explained variance. Used later (Section 4.10) to record
-# how much of the model's explanatory power is captured by each simulation's
-# variable subset.
+# contribution to explained variance. Used later (Section 4.11) to add context
+# for Benchmark Generation Models. 
 
 hmsc_model <- importPosteriorFromHPC(
         m         = unfitted_model,
@@ -436,10 +417,9 @@ cat("Posterior imported.\n")
 
 # Extract the environmental data matrix from the model.
 # hmsc_XData is a data.frame with columns for:
-#   - Environmental variables (e.g., temperature, slope, geology fractions)
-#   - MEM variables (Moran's Eigenvector Maps — spatial eigenvectors that
-#     capture spatial autocorrelation in the random effects)
-#   - A "." column (intercept placeholder in some HMSC versions)
+#   - Environmental variables
+#   - Moran's Eigenvector Maps
+#   - A "." column (intercept placeholder)
 #
 # For clustering, we use only the non-spatial, non-intercept variables.
 hmsc_XData <- hmsc_model$XData
@@ -451,7 +431,7 @@ if (any(colnames(hmsc_XData) == ".")) {
 all_vars <- sort(all_vars)
 
 # var_selection_counter: Tracks how many times each variable has been part
-# of a *successful* simulation. Variables that have already contributed to
+# of a successful simulation. Variables that have already contributed to
 # many successes get down-weighted in future selections (via 1/counter
 # probability weights), encouraging diversity across simulations. All
 # variables start at 1 (not 0, to avoid division by zero).
@@ -466,15 +446,17 @@ geo_vars <- c("area_calcareous", "area_sediment", "area_siliceous")
 
 
 # Bin edges and quota tracking (initialize before loop)
-quality_bins   <- seq(0.5, 1.5, by = 0.10)  # 0.50, 0.75, 1.00, 1.25, 1.50
-n_bins         <- length(quality_bins) - 1    # 4 bins
+quality_bins   <- seq(0.5, 1.5, by = 0.10)  # 0.50, 0.60, 0.70, ..., 1.50  (11 edges)
+n_bins         <- length(quality_bins) - 1    # 10 bins
+# N_TARGET_SUCCESSES is defined in section 1.4
 per_bin_quota  <- ceiling(N_TARGET_SUCCESSES / n_bins)
 bin_success_counts <- rep(0, n_bins)
 names(bin_success_counts) <- paste0("[", quality_bins[-length(quality_bins)],
                                     ",", quality_bins[-1], ")")
+# ======================================================================*
+## 4.2 Storage ---------------------
+# ======================================================================*
 
-
-## 4.1 Diagnostic Storage ------------------------------------------------------
 # diag_records: Collects one data.table row per parameter combination per
 # iteration. Failed combinations get NA for metrics computed after their
 # failure point, plus a final_status string indicating where they failed.
@@ -482,7 +464,6 @@ names(bin_success_counts) <- paste0("[", quality_bins[-length(quality_bins)],
 diag_records <- list()
 record_id    <- 0L
 
-## 4.1b Production Storage -----------------------------------------------------
 # These vectors/lists accumulate results from successful simulations only.
 # They are indexed in parallel — res_sim_output[[i]], res_n_clusters[i],
 # res_asw[i], etc. all refer to the same simulation.
@@ -490,25 +471,21 @@ record_id    <- 0L
 res_sim_output    <- list()  # HMSC predictions (list of posterior-draw lists)
 res_cluster_ids   <- list()  # Hard cluster assignments (integer vectors)
 res_fuzzy_ids     <- list()  # vegclust FCM objects (contain membership matrices)
-res_npe           <- c()     # Normalised Partitioning Entropy values
+res_npe           <- c()     # Normalized Partitioning Entropy values
 res_n_clusters    <- c()     # Number of clusters (k) for each simulation
 res_n_variables   <- c()     # Number of env variables selected
-res_n_valid  <- c()          # Number of valid environments comming from this iteration
+res_n_valid       <- c()     # Number of valid environments coming from this iteration
 res_importance    <- c()     # Summed variable importance from variation partitioning
 res_asw           <- c()     # Average Silhouette Width (full-space, post-manipulation)
 res_contr_points  <- c()     # Effective dispersion (within-cluster spread metric)
 res_contr_centro  <- c()     # Effective separation (between-centroid distance metric)
 
-
+# Tacks the number of validated environments 
 success_count <- 0
 
 cat("\nStarting diagnostic loop...\n")
 cat(sprintf("Target: %d successes, max %d iterations\n", N_TARGET_SUCCESSES, MAX_ITERATIONS))
 cat("---\n")
-
-# =========================================================================
-# BEGIN MAIN LOOP
-# =========================================================================
 
 for (q in 1:MAX_ITERATIONS) {
         
@@ -519,20 +496,23 @@ for (q in 1:MAX_ITERATIONS) {
         # into changed simulation results.
         set.seed(1000 + q)
         
+        # Check if Target condition is met 
         if (success_count >= N_TARGET_SUCCESSES) break
         
-        #cat(sprintf("\rIteration q=%d : Successes %d/%d", q, success_count, N_TARGET_SUCCESSES))
+        # update 
         cat(sprintf("\rIteration q=%d : Successes %d/%d  Bins: %s",
                     q, success_count, N_TARGET_SUCCESSES,
                     paste(bin_success_counts, collapse = "/")))
         flush.console()
-        # ------------------------------------------------------------------
-        # 4.2 Select Random Variable Subset
-        # ------------------------------------------------------------------
+        
+        # ======================================================================*
+        ## 4.3 Select Random Variable Subset ----
+        # ======================================================================*
+        
         # Each simulation uses a random subset of environmental variables for
         # clustering. This creates diversity in the typological "dimension" —
         # some simulations define types by temperature + geology, others by
-        # slope + land use, etc.
+        # slope + valley bottom flatness, etc.
         #
         # prob_weights = 1/counter: Variables that have appeared in many
         # successful simulations are less likely to be selected, pushing the
@@ -541,8 +521,6 @@ for (q in 1:MAX_ITERATIONS) {
         # n_vars_selected is drawn uniformly from [3, n_all_vars - 1].
         # Minimum of 3 ensures LDA has enough dimensions for meaningful
         # discriminant axes; maximum of n-1 avoids using all variables
-        # (which would leave no "missing" variables for the full-space ASW
-        # comparison to be interesting).
         
         prob_weights    <- 1 / var_selection_counter
         n_vars_selected <- sample(x = 3:(length(all_vars) - 1), size = 1)
@@ -559,9 +537,9 @@ for (q in 1:MAX_ITERATIONS) {
                 n_vars_selected <- length(selected_vars)
         }
         
-        # ------------------------------------------------------------------
-        # 4.3 Cluster Environments (K-Means)
-        # ------------------------------------------------------------------
+        # ======================================================================*
+        ## 4.4 Cluster Environments (K-Means) ---- 
+        # ======================================================================*
         # Cluster the HMSC training sites in the selected variable subspace.
         # This creates the "ground truth" typology that we will then
         # manipulate to vary type distinctness.
@@ -585,19 +563,19 @@ for (q in 1:MAX_ITERATIONS) {
         
         if (any(km_fit$size < 3)) next
         
-        # MIN_LD1_VARIANCE: Adaptive threshold for the LDA discrimination
-        # check (Filter 0, Section 4.4b). With more clusters, it's natural
-        # for variance to be spread across more discriminant axes, so we
-        # relax the threshold by 5 percentage points per additional cluster.
-        # k=2: threshold = 0.60 (one LD axis must explain ≥ 60%)
-        # k=5: threshold = 0.45
-        # k=10: threshold = 0.20
+        # MIN_LD1_VARIANCE: minimum share of the between-class variance that the
+        # first LD axis must explain for the k-means clustering to count as
+        # "separable enough" to manipulate (Filter 1 in Section 4.6).
         MIN_LD1_VARIANCE <- 0.7
         
         final_clusters   <- km_fit$cluster
+        
         n_clusters_optim <- k
         
-        # ----- Compute baseline ASW (before any cluster manipulation) -----
+        # ======================================================================*
+        ## 4.5 Compute baseline ASW (before any cluster manipulation) -----
+        # ======================================================================*
+        
         # ASW (Average Silhouette Width) measures how well-separated the
         # clusters are. Range: [-1, 1]. Higher = better separation.
         # We compute it in two spaces:
@@ -618,17 +596,21 @@ for (q in 1:MAX_ITERATIONS) {
         }
         
         full_data_orig <- copy(sim_env_data)
-        full_cols      <- setdiff(names(full_data_orig), grep("MEM", names(full_data_orig), value = TRUE))
+        full_cols      <- setdiff(names(full_data_orig), grep("MEM", 
+                                                              names(full_data_orig), 
+                                                              value = TRUE)
+                                  )
         full_data_orig <- full_data_orig[, ..full_cols]
         asw_orig_full  <- {
-                sil_full <- silhouette(final_clusters, dist(as.matrix(full_data_orig)))
+                sil_full <- silhouette(final_clusters, 
+                                       dist(as.matrix(full_data_orig)))
                 mean(sil_full[, 3])
         }
         rm(full_data_orig, full_cols, sil_full)
         
-        # ------------------------------------------------------------------
-        # 4.4 Compute Centroids in Unscaled Space
-        # ------------------------------------------------------------------
+        # ======================================================================*
+        ## 4.6 Compute Centroids in Unscaled Space & Filter 1 ----
+        # ======================================================================*
         # The LDA-based cluster manipulation operates in unscaled space
         # (for the validation pass) and later in scaled space (for HMSC
         # prediction). Here we set up the unscaled version.
@@ -657,17 +639,14 @@ for (q in 1:MAX_ITERATIONS) {
         unscaled_missing_vars <- unscaled_dt[, .SD, .SDcols = !selected_vars]
         unscaled_missing_vars[, type := NULL]
         
-        # ------------------------------------------------------------------
-        # 4.4b Early skip: constant-within-group variables
-        # ------------------------------------------------------------------
         # If any selected variable has zero within-group variance for any
         # cluster, LDA will fail. We check this with the pooled within-class 
         # covariance. This matrix must be invertabile for LDA to work.  
-        # compute W the pooled within-class covariance. 
-                # split() divides the data into a list of sub-matrices, one per
-                # cluster. cov gives the pxp covariance matrix. Because 
-                # covariance. Multiply by nrow(x) - 1 to remove the Bessel 
-                # Correction. Then we sum across all clusters. 
+        # compute W (the pooled within-class covariance). 
+        # split() divides the data into a list of sub-matrices, one per
+        # cluster. cov gives the p x p covariance matrix. Because 
+        # covariance. Multiply by nrow(x) - 1 to remove the Bessel 
+        # Correction. Then we sum across all clusters. 
         W <- Reduce("+",
                     lapply(
                                 split(
@@ -696,18 +675,12 @@ for (q in 1:MAX_ITERATIONS) {
         }
         if (has_constant) next
         
-        # ------------------------------------------------------------------
-        # 4.4c FILTER 0: Discriminant Variance Check (iteration-level)
-        # ------------------------------------------------------------------
         # Before trying any quality_factor values, check whether the k-means
         # clustering has clear discriminant structure. If the first Linear
         # Discriminant axis (LD1) explains less than MIN_LD1_VARIANCE of the
         # total between-class variance, the clusters are poorly separated in
         # discriminant space — manipulating them along LDA axes won't produce
         # meaningful variation in type distinctness. Skip the iteration.
-        #
-        # This is an efficiency filter: it avoids wasting time on cluster
-        # configurations that are inherently fuzzy regardless of quality_factor.
         
         lda_check <- MASS::lda(
                 x        = unscaled_cluster_data,
@@ -744,12 +717,14 @@ for (q in 1:MAX_ITERATIONS) {
                 next()
         }
         
-        # ------------------------------------------------------------------
-        # 4.5 Generate Parameter Combinations
-        # ------------------------------------------------------------------
-        # For each iteration that passes Filter 0, we test a range of
+        # ======================================================================*
+        ## 4.7 Generate Parameter Combinations ----
+        # ======================================================================*
+        
+        # For each iteration that passes Filter 1, we test a range of
         # quality_factor values from 0.5 (strong compression → overlapping
-        # types) to 1.5 (strong separation → crisp types) in steps of 0.25.
+        # types) to 1.5 (strong separation → crisp types), drawn at random 
+        # and not on a fixed 0.25 grid.
         #
         # adjust_clusters_lda() may not achieve the exact requested factor
         # due to data geometry constraints, so it returns effective_separation,
@@ -818,10 +793,12 @@ for (q in 1:MAX_ITERATIONS) {
         params$bin <- get_bin(params$quality_original)
         params <- params[bin_success_counts[params$bin] < per_bin_quota, ]
         if (nrow(params) == 0) next
-        # ------------------------------------------------------------------
-        # 4.6 FILTER 1: Isolation Forest
-        # ------------------------------------------------------------------
-        # For each surviving parameter combination, reconstruct the full
+        
+        # ======================================================================*
+        ## 4.8 Filters: Isolation Forest and Mahalanobis ----
+        # ======================================================================*
+        
+        # For each remaining parameter combination, reconstruct the full
         # (all-variable) unscaled environment by combining the manipulated
         # selected variables with the unchanged non-selected variables.
         # Then score every site with the isolation forest.
@@ -830,8 +807,8 @@ for (q in 1:MAX_ITERATIONS) {
         #   Stage A (per-site): Remove sites with Z-score > iso_threshold2.
         #     These individual sites are implausible outliers.
         #   Stage B (per-environment): After removing outlier sites, count how
-        #     many remain. If fewer than (1 - iso_threshold) × n_samples = 90%
-        #     survive, the entire simulated environment is rejected — too many
+        #     many remain. If fewer than (1 - iso_threshold) × n_samples = 85%
+        #     remain, the entire simulated environment is rejected — too many
         #     of its sites are outside the real-world envelope.
         
         validation_results <- list()
@@ -877,15 +854,16 @@ for (q in 1:MAX_ITERATIONS) {
         validation_results <- validation_results[scores_z <= iso_threshold2]
         n_sites_after_z    <- nrow(validation_results)
         
-        # Aggregate per simulation ID: how many sites survived, and what's
+        # Aggregate per simulation ID: how many sites remain, and what's
         # their average anomaly score?
         validation_results[, id_count := .N, by = "id"]
         validation_results[, avg_z := mean(scores_z), by = "id"]
         
-        # Stage B: Count threshold — at least 90% of original sites must survive
+        # Stage B: Count threshold — at least 85% of original sites must remain
         threshold_count <- floor(current_scheme$samples - iso_threshold * current_scheme$samples)
         
-        # Snapshot for diagnostics: record pass/fail for ALL param IDs before
+        # Snapshot for diagnostics: 
+        #  record pass/fail for ALL param IDs before
         # we filter the data.table down to survivors only.
         id_summary_pre <- unique(validation_results[, .(id, id_count, avg_z,
                                                         separation, dispersion,
@@ -927,9 +905,8 @@ for (q in 1:MAX_ITERATIONS) {
                 next()
         }
         
-        # ------------------------------------------------------------------
-        # 4.7 FILTER 2: Mahalanobis Distance
-        # ------------------------------------------------------------------
+        # Mahalanobis Distance Filter 
+        # 
         # For environments that passed the Isolation Forest, apply a second
         # parametric plausibility check: Mahalanobis distance from the
         # catchment centroid.
@@ -974,9 +951,9 @@ for (q in 1:MAX_ITERATIONS) {
         # Accept if fewer than 10% of sites are Mahalanobis outliers
         validation_results[, passed_mahalanobis := failsum < (0.10 * current_scheme$samples)]
         
-        # ------------------------------------------------------------------
-        # 4.8 Record Diagnostics for ALL Parameter Combos This Iteration
-        # ------------------------------------------------------------------
+        # ======================================================================*
+        ## 4.9 Record Diagnostics for all Parameter Combos This Iteration ----
+        # ======================================================================*
         # At this point we have three groups:
         #   1. IDs that failed ISO filter (in id_summary_pre but not validation_results)
         #   2. IDs that passed ISO but failed Mahalanobis (in validation_results, passed_mahalanobis = FALSE)
@@ -1014,11 +991,11 @@ for (q in 1:MAX_ITERATIONS) {
         
         # --- Groups 2 & 3: Build scaled environments for ISO-pass combos ---
         # For parameter combinations that passed the ISO filter, we now need
-        # to create the *scaled* (standardised) version of the manipulated
+        # to create the standardized version of the manipulated
         # environment, because the HMSC model expects scaled inputs.
         #
-        # The manipulation is re-run in scaled space with the *effective*
-        # quality_factor (not the original requested one), ensuring the
+        # The manipulation is re-run in scaled space with the effective
+        # quality factor (not the original requested one), ensuring the
         # scaled environment has the same relative cluster structure as the
         # validated unscaled one.
         
@@ -1026,7 +1003,7 @@ for (q in 1:MAX_ITERATIONS) {
         setDT(base_scaled_data)
         base_scaled_data[, type := final_clusters]
         
-        centroids_scaled     <- base_scaled_data[, lapply(.SD, mean), .SDcols = selected_vars, by = "type"]
+        centroids_scaled <- base_scaled_data[, lapply(.SD, mean), .SDcols = selected_vars, by = "type"]
         setorderv(centroids_scaled, "type")
         centroids_scaled[, type := NULL]
         centroids_scaled_mat <- as.matrix(as.data.frame(centroids_scaled))
@@ -1163,9 +1140,9 @@ for (q in 1:MAX_ITERATIONS) {
         rm(base_scaled_data, centroids_scaled, centroids_scaled_mat,
            scaled_cluster_data, scaled_missing_vars, col_order)
         
-        # ------------------------------------------------------------------
-        # 4.9 Update Counters
-        # ------------------------------------------------------------------
+        # ======================================================================*
+        ## 4.10 Update Counters ----
+        # ======================================================================*
         # Identify which parameter combos passed both filters.
         n_valid <- length(validated_envs)
         
@@ -1177,13 +1154,13 @@ for (q in 1:MAX_ITERATIONS) {
         }
         
         
-        # Deprioritise variables that contributed to successful simulations,
+        # Deprioritize variables that contributed to successful simulations,
         # encouraging future iterations to explore different variable subsets.
         var_selection_counter[selected_vars] <- var_selection_counter[selected_vars] + 1
         
-        # ------------------------------------------------------------------
-        # 4.10 Production: Store Metadata
-        # ------------------------------------------------------------------
+        # ======================================================================*
+        ## 4.11 Store Metadata ----
+        # ======================================================================*
         # Record metadata for each validated simulation. All production storage
         # vectors are indexed in parallel.
         validated_param_ids <- validation_results$id
@@ -1207,9 +1184,9 @@ for (q in 1:MAX_ITERATIONS) {
                 res_cluster_ids[[length(res_cluster_ids) + 1]] <- final_clusters
         }
         
-        # ------------------------------------------------------------------
-        # 4.11 Production: Fuzzy Classification & NPE
-        # ------------------------------------------------------------------
+        # ======================================================================*
+        ## 4.12 Fuzzy Classification & NPE ----
+        # ======================================================================*
         # Run Fuzzy C-Means (FCM) on each validated environment using only
         # the selected variables. The fuzziness parameter m = 1.5 (moderate
         # fuzziness; m = 1 → hard clustering, m → ∞ → uniform membership).
@@ -1236,9 +1213,9 @@ for (q in 1:MAX_ITERATIONS) {
         current_npe <- sapply(fuzzy_results, NPE)
         res_npe     <- append(res_npe, current_npe)
         
-        # ------------------------------------------------------------------
-        # 4.12 Production: HMSC Community Predictions
-        # ------------------------------------------------------------------
+        # ======================================================================*
+        ## 4.13 HMSC Community Predictions ----
+        # ======================================================================*
         # For each validated environment, predict species occurrence
         # probabilities using the fitted HMSC model.
         #
@@ -1284,9 +1261,8 @@ for (q in 1:MAX_ITERATIONS) {
 cat(sprintf("\n\nLoop complete. Total successes: %d\n", success_count))
 
 
-# ==============================================================================
-# 5. COMPILE AND SAVE DIAGNOSTIC REPORT
-# ==============================================================================
+# 5. COMPILE AND SAVE DIAGNOSTIC REPORT ----------------------------------------
+
 # Bind all diagnostic records into a single data.table and save.
 # fill = TRUE handles the fact that different failure paths produce different
 # column sets (e.g., FAIL_low_discrimination records have ld1_variance but
@@ -1299,9 +1275,10 @@ if (length(diag_records) == 0) {
 
 diag_dt <- rbindlist(diag_records, fill = TRUE)
 
-# ==============================================================================
-# 6. SAVE PRODUCTION OUTPUTS
-# ==============================================================================
+
+# 6. SAVE OUTPUTS TO FILE ---------------------------------------------------
+
+
 # Flatten the nested prediction list and cap at N_TARGET_SUCCESSES.
 # The output list follows the format expected by downstream analysis scripts
 # (e.g., the distance matrix computation pipeline).
