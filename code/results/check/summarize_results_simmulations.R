@@ -6,7 +6,7 @@ library(data.table)
 library(ggplot2)
 library(tidyverse)
 
-setwd("E://Arbeit/Projekte/02_ongoing/PULSE/wp1/data/")
+setwd("data/")
 
 # ==============================================================================
 # How many simulations? 
