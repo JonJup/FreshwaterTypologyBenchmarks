@@ -20,7 +20,7 @@ setwd(rstudioapi::getActiveProject())
 # 2. Load Data ------------------------------------------------------------
 
 data1 <- readRDS("data/results/results_empirical_typologies.rds")
-data2 <- readRDS("data/figures/simulation_results_key_metrics.rds")
+data2 <- readRDS("data/results/results_simulated_typologies.rds")
 
 
 data3 <- dplyr::filter(data1, typology == "kmeans")
