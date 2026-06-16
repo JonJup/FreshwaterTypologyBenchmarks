@@ -24,9 +24,7 @@ The raw environmental data are openly available and not provided again here, as 
 We provide the following intermediate products:
 - biological data (i.e., the raw data) with environmental variables from respective catchments (biota/*taxon*_w_environment.rds).
 - The EU HydroDEM catchments with an assigned Environmental Zone (eu_hydro_dem_w_enz.rds).
-- 
-
-Please note that after the creation of schemes in [04_define_schemes.R](code/04_define_schemes.R) all steps were run seperately for each taxonomic group. Many scripts thus assume a prallel folder structure where data/ lives inside a folder called e.g., fish/. In the code these are marked with placeholders: e.g., fish_folder.
+- For each of the taxon-group specific steps, we provide some example files for the invertebrates. These examples enable reviews to run the code and confirm that it is working. Uploading all data would exceed Zenodo storage limits. 
 
 ---
 
@@ -35,6 +33,7 @@ Please note that after the creation of schemes in [04_define_schemes.R](code/04_
 We have developed **pan-European ecological benchmarks** for freshwater typology systems using a large database of diatoms, fish, invertebrates, and macrophytes, [joint species distribution models](https://github.com/hmsc-r/hmsc-hpc/tree/main) fitted independently to subsets of this database, a novel [modification algorithm](code/09_simulate_data.R) for environments  
 
 The pipeline is deliberately modular so that each component — data preparation, HMSC fitting, QRF benchmarking, and evaluation — can be re-run independently against updated inputs.
+Please note that after the creation of schemes in [04_define_schemes.R](code/04_define_schemes.R) all steps were run seperately for each taxonomic group. Many scripts thus assume a prallel folder structure where data/ lives inside a folder called e.g., fish/. In the code these are marked with placeholders: e.g., fish_folder.
 
 ## Scope of the paper
 
