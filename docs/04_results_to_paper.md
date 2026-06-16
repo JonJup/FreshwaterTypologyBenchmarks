@@ -21,7 +21,7 @@ S3(["📜 report_establied_typolgies.R"]):::script
 SF1(["📜 established_typologies_violin.R"]):::script
 
 %% Files
-F1["📄 results_established_typologies.rds"]:::file
+F1["📄 results_empirical_typologies.rds"]:::file
 F2["📄 original_evaluations.rds"]:::file
 
 %% Figures
