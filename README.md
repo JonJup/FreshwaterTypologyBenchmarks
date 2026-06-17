@@ -74,8 +74,14 @@ The full pipeline can be reproduced by running the numbered scripts in order.
 Dependencies between scripts and files is shown in the 'docs/' folder.  
 
 Parts of the analysis were run on HPC at ANNONYMIZED FOR PEER REVIEW. 
-These used singularity containers. The code to compile the container is 
-available under 'hpc/'
+
+You can start by running the scripts numbered 01 - 05. All required data is provided in the complimentary [Zenodo repository](https://zenodo.org/records/20701841?preview=1&token=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6ImVmMTZmMjg4LThlNzEtNDlmZS1hNmUwLTBjN2RkY2NjNTU2MiIsImRhdGEiOnt9LCJyYW5kb20iOiJlMTU0NTI0MDM1Y2MzNTQzMTFhMTNiZTAzYjgyMmIxNSJ9.ESQO7owKnBSoYGuFdBs73TONFFTaGuvP5BhJ--YTgzEssIlaYLgx25gINDf__tttRC9jSPkUTXj7Q06CAaEPNQ). 
+
+The results are predefined HMSC models that can be run on and HPC. The unfitted models could also be run locally. This option is provided thought the script "". Note that we ran all HMSC models through HMSC-HPC on a server and have not validated complete reproducibility through the local version. However, to the best of our knowledge it should produce qualitatively equivalent results. Some models will likely exceed capabilities of local machines as they required upwards of 300GB RAM. 
+
+We fit the models running the shell script 02_hmsc_array.sh. This script needs to be called for each taxonomic separately and from inside the respective folder (i.e., diatom_folder/ for diatoms). 
+On servers we ran two singulariy containers. One for the HMSC-HPC model which is running Tensor Flow in Python, and one for R scripts. Both container (.sif) files are in the Zenodo repository and definitions (.def) are included in this github respositroy.
+The final scirpts (`arent/code/results/`), which compile the results and create figures where run locally. 
 
 ### HPC workflow
 
