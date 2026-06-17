@@ -17,14 +17,15 @@ library(data.table)
 
 # 2.0 load and prepare data ---------------------------------------------------
 
-# Biota files produced by the previous pipeline step (prefix "01_")
-files <- list.files("data/biota", pattern = "01_", full.names = TRUE)
+bio.names <- c("diatoms", "fish", "invertebrates", "macrophytes")
 
-# Extract organism-group labels from filenames for use in output naming.
-bio.names <- gsub("data/biota/01_|_w_catchment_id\\.rds", "", files)
+files <- c(
+        list.files(paste0(bio.names, "_folder/data/biota/"), full.names = TRUE)
+)
+
 
 # Per-catchment environmental parquet files (one per tile)
-catchments <- list.files("data/catchments", full.names = TRUE)
+catchments <- list.files("parent/data/catchments_w_environment", full.names = TRUE)
 
 # Load all biological datasets into memory
 bio.list       <- lapply(files, readRDS)
@@ -38,6 +39,8 @@ names(out_list) <- bio.names
 for (j in seq_len(n_bio_datasets)) {
         out_list[[j]] <- vector("list", length(catchments))
 }
+
+
 
 # 3.0 loop over catchment tiles -----------------------------------------------
 for (i in seq_along(catchments)) {
@@ -58,27 +61,28 @@ for (i in seq_along(catchments)) {
                 out_list[[j]][[i]] <- out[[j]]
         }
         
-        rm(i.vec, i.data, i.typology, out)
+        rm(i.vec, i.data, out)
 }
 
 # 4.0 Combine per-tile results ------------------------------------------------
 # rbindlist(fill = TRUE) handles tiles where some columns may be absent
 final_results <- lapply(out_list, function(x) rbindlist(x, fill = TRUE))
 
-# Retain only presence records (organismQuantity > 0) …
+# Retain only presence records (organismQuantity != 0) …
 final_results <- lapply(final_results, function(x) x[organismQuantity != 0])
 
 # … and label them as presences for downstream modelling
 final_results <- lapply(final_results, function(x) x[, PA := 1L])
 
 # 5.0 save to file ------------------------------------------------------------
-out_dir <- "data/biota"
-if (!dir.exists(out_dir)) dir.create(out_dir, recursive = TRUE)
+out_dir <- paste0(bio.names, "_folder/data/biota/")
+
 
 invisible(lapply(seq_len(n_bio_datasets), function(j) {
+        if (!dir.exists(out_dir[j])) dir.create(out_dir[j], recursive = TRUE)
         saveRDS(
                 final_results[[j]],
-                file.path(out_dir, paste0("02_", bio.names[j], "_w_environment.rds"))
+                file.path(out_dir[j], paste0("02_", bio.names[j], "_w_environment.rds"))
         )
         message("Saved: 02_", bio.names[j], "_w_environment.rds")
 }))

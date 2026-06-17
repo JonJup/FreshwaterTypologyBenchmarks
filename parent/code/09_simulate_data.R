@@ -107,8 +107,8 @@ suppressPackageStartupMessages({
 #   (which may differ from the requested quality_factor due to data geometry).
 
 cat("Loading helper functions ...\n")
-source("code/functions/normalized_partitioning_entropy.R")
-source("code/functions/adjust_clusters_lda.R")
+source("../R/normalized_partitioning_entropy.R")
+source("../R/adjust_clusters_lda.R")
 
 # Internally defined Helper: map quality values to bin indices
 get_bin <- function(q) {
@@ -162,7 +162,7 @@ path_eval           <- list.files("data/004_model_fit/", full.names = TRUE, patt
 path_fitted_files   <- list.files("data/003_fitted_hmsc_models/", full.names = TRUE, pattern = model_name)
 path_vp             <- list.files("data/005_variation_partitioning/", full.names = TRUE, pattern = model_name)
 path_unscaled_env   <- list.files("data/misc/unscaled_environments/", full.names = TRUE, pattern = model_name)
-path_catchments     <- list.files("data/catchments/", full.names = TRUE)
+path_catchments     <- list.files("../parent/data/catchments/", full.names = TRUE)
 
 # ======================================================================*
 ## 2.2 Quality Check ----------------------------------------------
@@ -223,12 +223,12 @@ cat("Fitted model loaded.\n")
 
 cat("Reading auxiliary files ...\n")
 
-schemes_file   <- list.files("data/000_biota", pattern = "03_", full.names = TRUE)
+schemes_file   <- list.files("data/biota", pattern = "03_", full.names = TRUE)
 schemes        <- readRDS(schemes_file)
 current_scheme <- schemes[scheme_id == model_name]
 cat("Schemes loaded.\n")
 
-eu_hydro_enz  <- readRDS("data/eu_hydro_dem_w_enz.rds")
+eu_hydro_enz  <- readRDS("../parent/data/eu_hydro_dem_w_enz.rds")
 cat("Validation data loaded.\n")
 
 # Catchment processing:

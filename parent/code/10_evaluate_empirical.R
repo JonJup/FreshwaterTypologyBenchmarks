@@ -1,10 +1,37 @@
-################################################################################*
-# Description:        Evaluate coherence between simulated typologies and 
-#                       communities 
-#                     (Array version - processes one iteration per job)
-# Usage:              Rscript evaluate_originals_array.R --iter_id <ID> --input <file> --output <file>
-# Notes:              Designed to run as SLURM array job
-################################################################################*
+# Description:  Evaluate coherence between simulated typologies and communities
+#               (Array version - processes one iteration per job).
+# Usage:        Rscript evaluate_originals_array.R --iter_id <ID> --input <file> --output <file>
+# Notes:        Designed to run as a SLURM array job (one task == one iteration).
+#
+# Each array task takes ONE simulated iteration (an unfitted HMSC model object
+# that bundles a community matrix `Y` and an environmental table `XData`) and
+# asks a single question: how well does a typology built directly from the
+# environment carve the biological community into coherent groups?
+#
+# Per-iteration pipeline:
+#   1. Read the iteration's model object (--input) and its matching
+#      spatial-scale metadata file.
+#   2. Build typologies from the ENVIRONMENT :
+#        - hard k-means: k is chosen by best average silhouette width (ASW);
+#          if no k keeps every cluster at >= 10 sites we fall back to the k that
+#          is "closest" to feasible and then rebalance with balance_clusters();
+#        - fuzzy c-means (FCM) at the same k.
+#   3. Score how well those environmental groups match the BIOLOGICAL
+#      dissimilarity (Jaccard) using several coherence metrics:
+#        - Classification Strength (CS)
+#        - ANOSIM R (mean over all cluster pairs)
+#        - AUC of zeta-diversity decline, relative to a random-grouping baseline
+#        - PERMANOVA R2 and F (both hard and fuzzy memberships)
+#        - a Mantel test between biological distance and the Aitchison distance
+#          of the fuzzy memberships.
+#   4. Write a tidy data.table of (scheme, typology, metric, value, ...) to
+#      --output.
+#
+# Permutation counts below are deliberately tiny (1-5). Only the
+# test STATISTICS (R, R2, F, Mantel r) are retained, never the p-values, so the
+# permutation count is irrelevant to the saved output. This is intentional.
+
+
 
 # 1 SETUP -------------------------------------------------------------------
 
@@ -64,9 +91,10 @@ suppressPackageStartupMessages({
 # ====================== *
 
 # Adjust paths if necessary relative to where the script is executed
-source("code/R/prop_sample.R")
-source("code/R/calculate_auc.R")
-source("code/R/group_sites_by_cluster.R")
+source("../R/prop_sample.R")
+source("../R/calculate_auc.R")
+source("../R/group_sites_by_cluster.R")
+source("../R/balance_clusters.R")
 
 # ====================== *
 ## 1.4 Parameters -----
@@ -263,7 +291,7 @@ rm(ci)
 cl <- makeCluster(cores_to_use)
 registerDoParallel(cl)
 
-results <- foreach(evaluation = 1:i.N, .combine = "rbind", .packages = c('vegan', 'dplyr')) %dopar% {
+results <- foreach(evaluation = 1:i.N, .combine = "rbind", .packages = c('vegan')) %dopar% {
         combination_set <- i.combinations[[evaluation]]
         pa_results <- t(sapply(1:nrow(combination_set), function(pa) {
                 pa_id <- cluster_indices[[evaluation]][[pa]]
@@ -338,7 +366,7 @@ for (ii in 1:i.N){
         }
         ii.orders <- sapply(ii.combination_set, function(x) min(length(x), 10))
         
-        for (iii in 1:length(ii.combination_set)){
+        for (iii in seq_along(ii.combination_set)){
                 pa.id <- ii.combination_set[[iii]]
                 pa.zeta  <- Zeta.decline.ex(
                         data.spec = i.D.list[[ii]]$Y[pa.id,],

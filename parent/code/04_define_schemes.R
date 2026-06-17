@@ -27,17 +27,18 @@ source("R/find_max_consequtive_sum.R")
 ## 1.2 load data ----
 # ================================================*
 
-# List all processed biota files (prefix 02_)
-files     <- list.files("data/biota", full.names = T, pattern = "02_")
-# Strip path prefix and suffix to get clean taxon names
-bio.names <- sapply(files,     function (x) sub("data/biota/02_", "", x))
-bio.names <- sapply(bio.names, function (x) sub("_w_environment.rds", "", x))
+# List all processed biota files
+
+bio.names <- c("diatoms", "fish", "invertebrates", "macrophytes")
+files <- c(
+        list.files(paste0(bio.names, "_folder/data/biota/"), full.names = TRUE, pattern = "^02_")
+)
 
 bio.list       <- lapply(files, readRDS)       # Load all biota datasets into a list
 n_bio_datasets <- length(bio.list)             # Number of taxonomic groups
 
 # Lookup table: catchment ID → Environmental Zone name
-id.to.enz <- readRDS("data/eu_hydro_dem_w_enz.rds")
+id.to.enz <- readRDS("parent/data/eu_hydro_dem_w_enz.rds")
 
 # 2.0 Creating the schemes --------------------------------------------------------
 
@@ -283,11 +284,13 @@ result.data[, scheme_id := sprintf("%s_%04d", taxon, scheme_id)]
 # Split by taxon for per-taxon saving
 split.data <- split(result.data, by = "taxon")
 
+out_dir <- paste0(bio.names, "_folder/data/biota/")
+
 # 4.0 save to file ---------------------------------------------------------------
 # Save one .rds file per taxonomic group
-lapply(seq_len(n_bio_datasets), function(x)
+for (x in seq_len(n_bio_datasets)) {
         saveRDS(
-                split.data[[x]],
-                paste0("data/biota/03_", bio.names[x], "_scheme.rds")
+                object = split.data[[x]],
+                file = paste0(out_dir[x], "03_schemes.rds")
         )
-)
+}

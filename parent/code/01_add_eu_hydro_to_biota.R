@@ -19,21 +19,18 @@ library(data.table)
 # 2.0 load data ---------------------------------------------------------------
 
 # Discover all biota RDS files in the MIDFIRE data directory.
-# NOTE: list.files() returns files in alphabetical order, so bio.names below
+# list.files() returns files in alphabetical order, so bio.names below
 # must match that order. Verify with: list.files(..., pattern="\\.rds$")
 
-
-path_to_euhydrodem <- c("")
-
 files <- list.files(
-        "data/biota/",   
-        pattern    = "\\.rds$",                  
+                "parent/data/biota/",   
+        pattern    = "\\.csv$",                  
         full.names = TRUE
 )
 
 # All GeoParquet tiles covering the EU-Hydro catchment polygons
 vector_data <- list.files(
-        path_to_euhydrodem,
+        "parent/data/catchments/",
         full.names = TRUE
 )
 
@@ -48,7 +45,7 @@ for (i in seq_along(bio.names)) {
         
         message("STARTING ", bio.names[i])
         
-        biota <- readRDS(files[i])
+        biota <- fread(files[i])
         
         # ========================* 
         ## 3.1 prepare sites ----
@@ -121,7 +118,7 @@ for (i in seq_along(bio.names)) {
         ## 3.4 Save -----
         # ================================================*
         
-        out_dir <- "data/biota"
+        out_dir <- paste0(bio.names[i],"_folder/data/biota/")
         if (!dir.exists(out_dir)) dir.create(out_dir, recursive = TRUE)
         
         saveRDS(biota, file.path(out_dir, paste0("01_", bio.names[i], "_w_catchment_id.rds")))

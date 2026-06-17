@@ -1,6 +1,9 @@
-# ==============================================================================
+# This script can be used to inspect the results of a the suimulations.
+
+
+
 # setup
-# ==============================================================================
+
 
 library(data.table)
 library(ggplot2)
@@ -8,14 +11,14 @@ library(tidyverse)
 
 setwd("data/")
 
-# ==============================================================================
-# How many simulations? 
-# ==============================================================================
 
-wd <- c("E://Arbeit/Projekte/02_ongoing/PULSE/wp1/data/pulseD",
-        "E://Arbeit/Projekte/02_ongoing/PULSE/wp1/data/pulseF",
-        "E://Arbeit/Projekte/02_ongoing/PULSE/wp1/data/pulseI",
-        "E://Arbeit/Projekte/02_ongoing/PULSE/wp1/data/pulseM")
+# How many simulations? ----
+
+
+wd <- c("diatom_folder",
+        "fish_folder",
+        "invertebrate_folder",
+        "macrophyte_folder")
 vp <- c()
 sm <- c()
 ms <- list()
@@ -42,24 +45,24 @@ sum(sapply(ms, length)) + sum(sm) == sum(vp)
 # Simulations failed for: 
 round(sum(sapply(ms, length)) / sum(vp) * 100,2)
 
-# ==============================================================================
+
 # Detailed output 
-# ==============================================================================
-setwd("E://Arbeit/Projekte/02_ongoing/PULSE/wp1/data/")
-filesD <- list.files("pulseD/data/misc/simulation_diagnostics/", full.names = T)
-filesF <- list.files("pulseF/data/misc/simulation_diagnostics/", full.names = T)
-filesI <- list.files("pulseI/data/misc/simulation_diagnostics/", full.names = T)
-filesM <- list.files("pulseM/data/misc/simulation_diagnostics/", full.names = T)
+
+setwd("data/")
+filesD <- list.files("diatom_folder/data/misc/simulation_diagnostics/", full.names = T)
+filesF <- list.files("fish_folder/data/misc/simulation_diagnostics/", full.names = T)
+filesI <- list.files("invertebrate_folder/data/misc/simulation_diagnostics/", full.names = T)
+filesM <- list.files("macrophyte_folder/data/misc/simulation_diagnostics/", full.names = T)
 
 dataD <- lapply(filesD, readRDS)
 dataF <- lapply(filesF, readRDS)
 dataI <- lapply(filesI, readRDS)
 dataM <- lapply(filesM, readRDS)
 
-for (i in seq_along(dataD)) dataD[[i]]$model = gsub("pulseD/data/misc/simulation_diagnostics/","",filesD[i])
-for (i in seq_along(dataF)) dataF[[i]]$model = gsub("pulseD/data/misc/simulation_diagnostics/","",filesF[i])
-for (i in seq_along(dataI)) dataI[[i]]$model = gsub("pulseD/data/misc/simulation_diagnostics/","",filesI[i])
-for (i in seq_along(dataM)) dataM[[i]]$model = gsub("pulseD/data/misc/simulation_diagnostics/","",filesM[i])
+for (i in seq_along(dataD)) dataD[[i]]$model = gsub("diatom_folder/data/misc/simulation_diagnostics/","",filesD[i])
+for (i in seq_along(dataF)) dataF[[i]]$model = gsub("fish_folder/data/misc/simulation_diagnostics/","",filesF[i])
+for (i in seq_along(dataI)) dataI[[i]]$model = gsub("invertebrate_folder/data/misc/simulation_diagnostics/","",filesI[i])
+for (i in seq_along(dataM)) dataM[[i]]$model = gsub("macrophyte_folder/data/misc/simulation_diagnostics/","",filesM[i])
 
 
 diag_dtD <- rbindlist(dataD, use.names =T)
@@ -132,15 +135,14 @@ if (nrow(pass_dt) > 0) {
                     mean(pass_dt$asw_after_full - pass_dt$asw_orig_full, na.rm = TRUE)))
 }
 
-# ==============================================================================
-# Which ones failed the simulation?
-# ==============================================================================
 
-setwd("E://Arbeit/Projekte/02_ongoing/PULSE/wp1/data/")
-sd <- readRDS("pulseD/data/000_biota/03_diatoms_scheme.rds")
-sf <- readRDS("pulseF/data/000_biota/03_fish_scheme.rds")
-si <- readRDS("pulseI/data/000_biota/03_invertebrates_scheme.rds")
-sm <- readRDS("pulseM/data/000_biota/03_macrophytes_scheme.rds")
+# Which ones failed the simulation? --------------------------------------------
+
+
+sd <- readRDS("diatom_folder/data/biota/03_diatoms_scheme.rds")
+sf <- readRDS("fish_folder/data/biota/03_fish_scheme.rds")
+si <- readRDS("invertebrate_folder/data/biota/03_invertebrates_scheme.rds")
+sm <- readRDS("macrophyte_folder/data/biota/03_macrophytes_scheme.rds")
 
 sd$included <- TRUE
 sf$included <- TRUE

@@ -66,10 +66,10 @@ suppressPackageStartupMessages({
 # ===================================== *
 ## 1.3 custom scripts ----
 # ===================================== *
-source("code/functions/render_table.R")
-source("code/functions/prop_sample.R")
-source("code/functions/calculate_auc.R")
-source("code/functions/group_sites_by_cluster.R")
+source("../R/render_table.R")
+source("../R/prop_sample.R")
+source("../R/calculate_auc.R")
+source("../R/group_sites_by_cluster.R")
 
 # Use all available cores for within-job parallelization
 cores_to_use <- 8

@@ -7,7 +7,7 @@
 #              MCMC state to disk.
 # Notes:       Intended to be called via Slurm array jobs:
 #              Rscript 05_build_hmsc_hpc_models.R <TAXON> <ROW_INDEX>
-#              TAXON: one of "diatoms", "fish", "macroinvertebrates", "macrophytes"
+#              TAXON: one of "diatom", "fish", "macroinvertebrate", "macrophyte"
 #              ROW_INDEX: integer row of the scheme table to process
 ################################################################################*
 
@@ -27,13 +27,13 @@ suppressPackageStartupMessages({
 })
 
 # External functions — halt early if not found rather than failing mid-run
-if (file.exists("code/functions/determine_spatial_scale.R")) {
-        source("code/functions/determine_spatial_scale.R")
+if (file.exists("../R/determine_spatial_scale.R")) {
+        source("../R/determine_spatial_scale.R")
 } else {
         stop("Custom function 'determine_spatial_scale.R' not found.")
 }
-if (file.exists("code/functions/remove_collinearity.R")) {
-        source("code/functions/remove_collinearity.R")
+if (file.exists("../R/remove_collinearity.R")) {
+        source("../R/remove_collinearity.R")
 } else {
         stop("Custom function 'remove_collinearity.R' not found.")
 }
@@ -118,7 +118,7 @@ process_scheme <- function(o, b.scheme, b.bio, bio.names, taxon) {
                 n_taxa      = n_taxa_final
         )
 
-        dir.create("data/misc/taxa_counts/", recursive = TRUE, showWarnings = FALSE)
+        dir.create(paste0(bio.names, "_folder/data/misc/taxa_counts/"), recursive = TRUE, showWarnings = FALSE)
         saveRDS(taxa_summary, paste0("data/misc/taxa_counts/", o.scheme.number, ".rds"))
         # ======================================================= *
 
@@ -128,7 +128,7 @@ process_scheme <- function(o, b.scheme, b.bio, bio.names, taxon) {
         # Determine spatial grain of the sampling scheme (e.g. reach / catchment)
         o.sf <- determine_spatial_scale(o.data, o.scheme)
         dir.create("data/misc/spatial_scale/", recursive = TRUE, showWarnings = FALSE)
-        saveRDS(o.sf, paste0("data/misc/spatial_scale/", o.scheme.number, ".rds"))
+        saveRDS(o.sf, paste0("data/misc/spatial_scale", o.scheme.number, ".rds"))
 
         # Record the proportion of records at each taxonomic resolution
         o.tx <- data.table(
@@ -144,11 +144,6 @@ process_scheme <- function(o, b.scheme, b.bio, bio.names, taxon) {
         )
         dir.create("data/misc/taxonomic_resolution/", recursive = TRUE, showWarnings = FALSE)
         saveRDS(o.tx, paste0("data/misc/taxonomic_resolution/", o.scheme.number, ".rds"))
-
-        # Save typology system assignments per site (FEOW, GLORiC, BGR, etc.)
-        o.types <- unique(o.data[, .(eventID, FEOW, GLORiC, BGR, BRT, EnZ, HER, IFE)], by = "eventID")
-        dir.create("data/misc/scheme_types/", recursive = TRUE, showWarnings = FALSE)
-        saveRDS(o.types, paste0("data/misc/scheme_types/", o.scheme.number, ".rds"))
         # ======================================================= *
 
         # ======================================================= *
@@ -265,7 +260,7 @@ process_scheme <- function(o, b.scheme, b.bio, bio.names, taxon) {
         # 
         # Each site is treated as an independent sample-level random effect
         studyDesign <- data.frame(sample = as.factor(1:nrow(o.data3)))
-        rL       <- HmscRandomLevel(units = studyDesign$sample)
+        rL       <- Hmsc::HmscRandomLevel(units = studyDesign$sample)
         XFormula <- as.formula(paste("~", paste(names(o.env.final), collapse = "+")))
 
         # Inner helper: construct and save unfitted model, then produce the HPC-engine init object
@@ -311,16 +306,8 @@ process_scheme <- function(o, b.scheme, b.bio, bio.names, taxon) {
 # 4. Execution -------------------------------------------------------
 
 # Discover available biological data and scheme definition files
-files_all   <- list.files("data/000_biota", pattern = "02_", full.names = TRUE)
-schemes_all <- list.files("data/000_biota", pattern = "03_", full.names = TRUE)
-
-# Select the file matching the requested taxon group
-bio_file    <- grep(taxon, files_all,   value = TRUE)
-scheme_file <- grep(taxon, schemes_all, value = TRUE)
-
-# Fallback to first available file if no taxon-specific match found
-if (length(bio_file)    == 0) bio_file    <- files_all[1]
-if (length(scheme_file) == 0) scheme_file <- schemes_all[1]
+bio_file   <- list.files("data/biota/", full.names = TRUE, pattern = "02_")
+scheme_file <- list.files("data/biota/", full.names = TRUE, pattern = "03_")
 
 cat("Loading Bio Data:",    bio_file,    "\n")
 cat("Loading Scheme Data:", scheme_file, "\n")
@@ -330,7 +317,7 @@ b.scheme <- readRDS(scheme_file)
 bio.names <- taxon
 
 # Diatom-specific: strip "+" characters appended to some taxon names
-if (taxon == "diatoms") {
+if (taxon == "diatom") {
         b.bio[, working.taxon := gsub(x = working.taxon, pattern = "\\+", replacement = "")]
 }
 

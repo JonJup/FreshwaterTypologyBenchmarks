@@ -17,15 +17,14 @@ library(flextable)
 library(officer)
 
 # Configuration 
-base_path <- "E://Arbeit/Projekte/02_ongoing/PULSE/wp1/data/"
-
+base_path <- # path to your folders
 # 2. Load data -----------------------------------------------------------------
 
 groups <- list(
-        D = list(dir = "pulseD", taxon = "diatoms"),
-        F = list(dir = "pulseF", taxon = "fish"),
-        I = list(dir = "pulseI", taxon = "invertebrates"),
-        M = list(dir = "pulseM", taxon = "macrophytes")
+        D = list(dir = "diatom_folder", taxon = "diatoms"),
+        F = list(dir = "fish_folder", taxon = "fish"),
+        I = list(dir = "invertebrate_folder", taxon = "invertebrates"),
+        M = list(dir = "macrophyte_folder", taxon = "macrophytes")
 )
 
 # Helper Function 
@@ -45,7 +44,7 @@ for (g in names(groups)) {
         # Evaluations (note: check "Origianls" typo in your M path)
         data[[g]]    <- read_dir(file.path(root, "data/007_evaluations_empirical"))
         # Schemes
-        schemes[[g]] <- readRDS(file.path(root, "data/000_biota", 
+        schemes[[g]] <- readRDS(file.path(root, "data/biota", 
                                           paste0("03_", grp$taxon, "_scheme.rds")))
         # Taxonomic resolution
         schem[[g]]   <- read_dir(file.path(root, "data/misc/taxonomic_resolution"))

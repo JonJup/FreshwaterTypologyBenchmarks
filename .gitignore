@@ -25,7 +25,11 @@
 vignettes/*.html
 vignettes/*.pdf
 
-data/*
+parent/data/*
+invertebrate_folder/data/*
+fish_folder/data/*
+diatom_folder/data/*
+macrophyte_folder/data/*
 figures/*
 output/tables/*
 output/figures/*

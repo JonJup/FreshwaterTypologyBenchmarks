@@ -1,0 +1,223 @@
+Bootstrap: docker
+From: rocker/r-ver:4.5.0
+
+%labels
+    Author 
+    Version 1.0
+    Singularity container used in the project Benchmarks for ecological typology systems 
+
+%environment
+    # Set R library path
+    export R_LIBS_USER=/usr/local/lib/R/site-library
+    export LC_ALL=C.UTF-8
+    export LANG=C.UTF-8
+
+%post
+    # Update package list and install system dependencies
+    apt-get update && apt-get install -y \
+        build-essential \
+        libcurl4-openssl-dev \
+        libssl-dev \
+        libxml2-dev \
+        libfontconfig1-dev \
+        libharfbuzz-dev \
+        libfribidi-dev \
+        libfreetype6-dev \
+        libpng-dev \
+        libtiff5-dev \
+        libjpeg-dev \
+        libgit2-dev \
+        libgmp-dev \
+        libmpfr-dev \
+        cmake \
+        gfortran \
+        libudunits2-dev \
+        libgdal-dev \
+        libgeos-dev \
+        libproj-dev \
+        libsqlite3-dev \
+        libnetcdf-dev \
+        netcdf-bin \
+        gdal-bin \
+        libgsl-dev \
+        pkg-config \
+        && apt-get clean \
+        && rm -rf /var/lib/apt/lists/*
+    
+    # Create R library directory
+    mkdir -p /usr/local/lib/R/site-library
+    
+    # Configure R with increased timeout and multiple CRAN mirrors
+    cat > /tmp/install_packages.R <<'RSCRIPT'
+# Set options for better download reliability
+options(
+    repos = c(
+        CRAN1 = "https://cloud.r-project.org/",
+        CRAN2 = "https://cran.rstudio.com/",
+        CRAN3 = "https://mirror.las.iastate.edu/CRAN/"
+    ),
+    timeout = 300,  # 5 minutes
+    HTTPUserAgent = sprintf("R/%s R (%s)", getRversion(), paste(getRversion(), R.version$platform, R.version$arch, R.version$os))
+)
+
+# Function to install with retries
+install_with_retry <- function(pkgs, max_attempts = 3) {
+    for (pkg in pkgs) {
+        cat("\n=== Installing", pkg, "===\n")
+        for (attempt in 1:max_attempts) {
+            cat("Attempt", attempt, "of", max_attempts, "\n")
+            result <- tryCatch({
+                install.packages(pkg, dependencies = TRUE)
+                TRUE
+            }, error = function(e) {
+                cat("Error:", conditionMessage(e), "\n")
+                FALSE
+            }, warning = function(w) {
+                cat("Warning:", conditionMessage(w), "\n")
+                TRUE
+            })
+            
+            # Check if package actually installed
+            if (require(pkg, character.only = TRUE, quietly = TRUE)) {
+                cat("Successfully installed", pkg, "\n")
+                break
+            } else if (attempt < max_attempts) {
+                cat("Installation failed, retrying...\n")
+                Sys.sleep(5)
+            } else {
+                stop(paste("Failed to install", pkg, "after", max_attempts, "attempts"))
+            }
+        }
+    }
+}
+
+# Install packages in order
+cat("\n### Installing base dependencies ###\n")
+install_with_retry(c("Rcpp"))
+
+cat("\n### Installing string packages ###\n")
+install_with_retry(c("stringi", "stringr"))
+
+cat("\n### Installing DBI ###\n")
+install_with_retry(c("DBI"))
+
+cat("\n### Installing data manipulation packages ###\n")
+install_with_retry(c("data.table", "lubridate"))
+
+cat("\n### Installing spatial dependencies ###\n")
+install_with_retry(c("units", "s2", "sp"))
+
+cat("\n### Installing sf ###\n")
+install_with_retry(c("sf"))
+
+cat("\n### Installing spatial analysis packages ###\n")
+install_with_retry(c("adespatial"))
+
+cat("\n### Installing web/markdown packages ###\n")
+install_with_retry(c("httpuv", "rmarkdown"))
+
+cat("\n### Installing JSON utilities ###\n")
+install_with_retry(c("jsonify"))
+
+cat("\n### Installing statistical packages ###\n")
+install_with_retry(c("coda", "moments"))
+
+cat("\n### Installing community ecology packages ###\n")
+install_with_retry(c("vegan", "labdsv", "zetadiv"))
+
+cat("\n### Installing clustering packages ###\n")
+install_with_retry(c("cluster", "vegclust", "kernlab"))
+
+cat("\n### Installing multivariate analysis packages ###\n")
+install_with_retry(c("mvabund"))
+
+cat("\n### Installing machine learning packages ###\n")
+install_with_retry(c("isotree"))
+
+cat("\n### Installing hierarchical modeling ###\n")
+install_with_retry(c("Hmsc"))
+
+cat("\n### Installing parallel computing packages ###\n")
+install_with_retry(c("foreach", "doParallel", "parallelDist"))
+
+cat("\n### Installing distance/similarity measures ###\n")
+install_with_retry(c("philentropy"))
+
+cat("\n### Installing tidymodels ecosystem (this may take a while) ###\n")
+install_with_retry(c("tidymodels"))
+
+cat("\n### Installing model interpretation packages ###\n")
+install_with_retry(c("rpart.plot", "vip", "pdp"))
+
+cat("\n### Installing plotting utilities ###\n")
+install_with_retry(c("directlabels"))
+
+cat("\n### Installing Multiple Imputation Software ###\n")
+install_with_retry(c("mice"))
+
+cat("\n### Installing Indicator Species ###\n")
+install_with_retry(c("indicspecies"))
+
+cat("\n### Installing bundle ###\n")
+install_with_retry(c("bundle"))
+
+cat("\n### Installing treeshap ###\n")
+install_with_retry(c("treeshap"))
+
+cat("\n### Installing shapviz ###\n")
+install_with_retry(c("shapviz"))
+
+cat("\n### Installing finetune ###\n")
+install_with_retry(c("finetune"))
+
+cat("\n### Installing robCompositions ###\n")
+install_with_retry(c("robCompositions"))
+
+
+cat("\n### All installations complete ###\n")
+RSCRIPT
+
+    # Run the installation script
+    R --slave --no-save < /tmp/install_packages.R
+    
+    # Verify all packages can be loaded
+    echo "Verifying package installation..."
+    R --slave --no-save <<'EOF'
+packages <- c(
+    "stringi", "stringr", "rmarkdown", "httpuv", "DBI", 
+    "sp", "s2", "units", "Rcpp", "sf",
+    "data.table", "coda", "Hmsc", "jsonify", "vegan", 
+    "moments", "isotree", "vegclust", "cluster", "kernlab", 
+    "mvabund", "parallelDist", "doParallel", "zetadiv", 
+    "foreach", "philentropy", "labdsv", "lubridate", 
+    "adespatial", "tidymodels", "rpart.plot", "vip", 
+    "pdp", "directlabels", "indicspecies", "bundle", "treeshap", "shapviz"
+)
+failed <- character(0)
+
+for (pkg in packages) {
+    cat("Checking package:", pkg, "... ")
+    result <- tryCatch({
+        suppressPackageStartupMessages(library(pkg, character.only = TRUE))
+        cat("OK\n")
+        TRUE
+    }, error = function(e) {
+        cat("FAILED\n")
+        cat("Error:", conditionMessage(e), "\n")
+        FALSE
+    })
+    if (!result) failed <- c(failed, pkg)
+}
+
+if (length(failed) > 0) {
+    cat("\n=== PACKAGE VERIFICATION FAILED ===\n")
+    cat("Failed to load:", paste(failed, collapse=", "), "\n")
+    quit(status = 1)
+} else {
+    cat("\n=== ALL PACKAGES VERIFIED SUCCESSFULLY ===\n")
+    cat("Total packages verified:", length(packages), "\n")
+}
+EOF
+     
+%runscript
+    exec R "$@"

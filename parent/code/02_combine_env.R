@@ -18,6 +18,9 @@ library(data.table)
 
 # 2.0 load data -------------------------------------------------------------------
 
+# These data are not provided. However the scripts used to create them are in parent/code/prepare_environment.
+# Also the results of this script are provided
+
 slope                   <- dir_ls("env_data/hydrography90m/processedData/slope_w_catchments/")
 lakes                   <- dir_ls("env_data/hydroLAKES/processedData/fractionLake_w_catchment/")
 soil_oc                 <- dir_ls("env_data/new soil/processedData/oc_w_catchment/")
@@ -61,8 +64,6 @@ all.var <- list(
         valley_bottom_flatness  = valley_bottom_flatness
 )
 
-#n_vars <- length(all.var)   # 18 — used throughout to avoid magic numbers
-
 # ================================================*
 ## 3.1 helper function: ---------------
 # ================================================*
@@ -98,7 +99,7 @@ clean_name_list <- all.var[[1]] %>%
 
 
 # Ensure output directory exists before the loop writes into it
-out_dir <- "data/catchments"
+out_dir <- "data/parents/catchments_w_environment"
 if (!dir.exists(out_dir)) dir.create(out_dir, recursive = TRUE)
 
 # 4.0 main loop: one iteration per catchment tile -----------------------------

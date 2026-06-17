@@ -8,16 +8,15 @@
 library(data.table)
 library(tidyverse)
 library(magrittr)
-setwd("E://Arbeit/Projekte/02_ongoing/PULSE/wp1/data/")
 
 
 #  2. Load Data  -------------------------------------------------------
 
 
-filesD <- list.files("pulseD/data/004_model_fit/", full.names =T)
-filesF <- list.files("pulseF/data/004_model_fit/", full.names =T)
-filesI <- list.files("pulseI/data/004_model_fit/", full.names =T)
-filesM <- list.files("pulseM/data/004_model_fit/", full.names =T)
+filesD <- list.files("diatom_folder/data/004_model_fit/", full.names =T)
+filesF <- list.files("fish_folder/data/004_model_fit/", full.names =T)
+filesI <- list.files("invertebrate_folder/data/004_model_fit/", full.names =T)
+filesM <- list.files("macrophyte_folder/data/004_model_fit/", full.names =T)
 
 dataD <- lapply(filesD, readRDS)
 dataF <- lapply(filesF, readRDS)
@@ -34,14 +33,6 @@ dataI %<>% rbindlist() %>% mutate(taxon = "invertebrates")
 dataM %<>% rbindlist() %>% mutate(taxon = "macrophytes")
 
 data <- rbindlist(list(dataD, dataF, dataI, dataM))
-
-drop_id <- c(
-        paste0("diatoms_0", 329:333), 
-        paste0("invertebrates_0", c(374:401, 655:667)), 
-        paste0("macrophytes_0", c(244,245))
-)
-data <- data[!scheme %in% drop_id]
-
 
 
 #  4. Analyses -------------------------------------------------------
@@ -65,10 +56,10 @@ data2[good_model == TRUE, .N]
 
 #  5. Load Detailed Data -------------------------------------------------------
 
-filesD <- list.files("pulseD/data/004_model_fit_detail/", full.names =T)
-filesF <- list.files("pulseF/data/004_model_fit_detail/", full.names =T)
-filesM <- list.files("pulseI/data/004_model_fit_detail/", full.names =T)
-filesI <- list.files("pulseM/data/004_model_fit_detail/", full.names =T)
+filesD <- list.files("diatom_folder/data/004_model_fit_detail/", full.names =T)
+filesF <- list.files("fish_folder/data/004_model_fit_detail/", full.names =T)
+filesM <- list.files("invertebrate_folder/data/004_model_fit_detail/", full.names =T)
+filesI <- list.files("macrophyte_folder/data/004_model_fit_detail/", full.names =T)
 
 dataD <- lapply(filesD, readRDS)
 dataF <- lapply(filesF, readRDS)
@@ -76,7 +67,7 @@ dataI <- lapply(filesI, readRDS)
 dataM <- lapply(filesM, readRDS)
 
 
-#  3. Prepare Data -------------------------------------------------------
+#  6. Prepare Data -------------------------------------------------------
 
 dataD %<>% rbindlist() 
 dataF %<>% rbindlist() 
@@ -85,15 +76,8 @@ dataM %<>% rbindlist()
 
 data <- rbindlist(list(dataD, dataF, dataI, dataM))
 
-drop_id <- c(
-        paste0("diatoms_0", 329:333), 
-        paste0("invertebrates_0", c(374:401, 655:667)), 
-        paste0("macrophytes_0", c(244,245))
-)
-data <- data[!scheme_id %in% drop_id]
 
-
-#  4. Analyses -------------------------------------------------------
+#  7. Analyses -------------------------------------------------------
 
 
 data[, round(mean(AUC, na.rm = T),2), by = "group"]

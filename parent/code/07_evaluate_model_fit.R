@@ -21,6 +21,7 @@ args <- commandArgs(trailingOnly = TRUE)
 iter_id <- NULL
 input_file <- NULL
 output_file <- NULL
+output_file2 <- NULL
 
 # Parse arguments: each flag is followed by its value (args[i + 1])
 for (i in seq_along(args)) {
@@ -63,7 +64,7 @@ suppressPackageStartupMessages({
 # ================================================*
 
 # Use file.path for safer (OS-independent) path construction
-base_func_path <- "code/functions"
+base_func_path <- "../R"
 cat("Loading custom functions from:", base_func_path, "\n")
 
 source(file.path(base_func_path, "gelman_check.R"))    # gelman_check(): PSRF table

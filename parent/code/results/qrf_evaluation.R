@@ -16,7 +16,7 @@ library(tidymodels)
 
 # 2. prepare loop ------------------------------------------------------------
 
-taxa <- c("diatoms", "fish", "invertebrates", "macrophytes")
+taxa <- c("diatom", "fish", "invertebrate", "macrophyte")
 results_importance <- list()
 results_metrics    <- list()
 results <- list()
@@ -27,11 +27,8 @@ for (t in taxa){
         # Print status 
         cat(sprintf("Starting with %s\n", t))
         
-        # Extract the first letter of the taxa and capitalize it (e.g., "fish" -> "F")
-        taxa_letter <- toupper(substr(t, 1, 1))
-        
         # Dynamically build the directory path and set it
-        dir_path <- sprintf("data/pulse%s", taxa_letter)
+        dir_path <- sprintf("data/%s_folder", t)
         setwd(dir_path)
 
         all_files <- list.files("data/008_qrf/", pattern = "\\.rds$", full.names = TRUE)
@@ -121,9 +118,7 @@ for (t in taxa){
                 metric_name <- tools::file_path_sans_ext(basename(f))
 
                 if (!metric_name %in%
-                    c("isa_number",
-                      "isa_avg_p",
-                      "fuzzy_divergence",
+                    c(
                       "fuzzy_mantel")
                     ) {metric_name <- gsub("_", "\\ ", metric_name)}
 
@@ -153,7 +148,7 @@ for (t in taxa){
                         "genus_rank", "family_rank", "higher_rank", "n_taxa"
                 )
 
-                if (!metric_name %in% c("fuzzy_divergence", "fuzzy_mantel")){
+                if (!metric_name %in% c("fuzzy_mantel")){
                         predictor_vec <- predictor_vec[!predictor_vec %in% c("fuzzy_npe")]
                 }
 

@@ -22,13 +22,13 @@ library(tidytext)
 
 
 # Configuration
-base_path <- "data/"
+base_path <- # your personal path. 
 
 groups <- list(
-        D = list(dir = "pulseD", taxon = "diatoms"),
-        F = list(dir = "pulseF", taxon = "fish"),
-        I = list(dir = "pulseI", taxon = "invertebrates"),
-        M = list(dir = "pulseM", taxon = "macrophytes")
+        D = list(dir = "diatom_folder", taxon = "diatoms"),
+        F = list(dir = "fish_folder", taxon = "fish"),
+        I = list(dir = "invertebrate_folder", taxon = "invertebrates"),
+        M = list(dir = "macrophyte_folder", taxon = "macrophytes")
 )
 
 # Helper Function
@@ -49,7 +49,7 @@ for (g in names(groups)) {
         # Schemes
         schemes[[g]] <- readRDS(file.path(
                 root,
-                "data/000_biota",
+                "data/biota",
                 paste0("03_", grp$taxon, "_scheme.rds")
         ))
         # Taxonomic resolution
