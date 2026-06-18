@@ -77,6 +77,8 @@ Some data from intermediate processing are made available alongside them.
 
 The full pipeline can be reproduced by running the numbered scripts in order.
 Dependencies between scripts and files is shown in the ['docs/'](docs/) folder.  
+Unfortunately, they are not properly displayed in the anonymized version. 
+You can copy pase them here: https://mermaidviewer.com/editor
 
 Parts of the analysis were run on HPC at ANONYMIZED FOR PEER REVIEW. 
 
