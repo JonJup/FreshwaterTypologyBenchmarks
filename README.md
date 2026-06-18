@@ -19,47 +19,52 @@ The linked Zenodo contains two kinds of data.
 - Raw data which will be made available with extensive meta data upon acceptance of the manuscript
 - Intermediate Products from the analysis pipleine provided to ease the review process. The data will not be made broadly available upon acceptance. 
 
-The raw environmental data are openly available and not provided again here, as they contain some large files. All links are provided in the respective R scirpts (see code/prepare_environment).
+The raw environmental data are openly available and not provided again here, as they contain some large files. All links are provided in the respective R scirpts (see [`code/prepare_environment`](parent/code/prepare_environment)).
 
 We provide the following intermediate products:
 - biological data (i.e., the raw data) with environmental variables from respective catchments (biota/*taxon*_w_environment.rds).
-- The EU HydroDEM catchments with an assigned Environmental Zone (eu_hydro_dem_w_enz.rds).
-- For each of the taxon-group specific steps, we provide some example files for the invertebrates. These examples enable reviews to run the code and confirm that it is working. Uploading all data would exceed Zenodo storage limits. 
+- The [EU HydroDEM catchments](https://land.copernicus.eu/en/products/eu-hydro/eu-hydro-river-network-database) with an assigned [Environmental Zone](https://sdi.eea.europa.eu/catalogue/idp/api/records/6ef007ab-1fcd-4c4f-bc96-14e8afbcb688) (eu_hydro_dem_w_enz.rds).
+- For each of the taxon-group specific steps, we provide some example files for the invertebrates. These examples enable reviews to run the code and confirm that it is working. Uploading all data would exceed Zenodo's storage limits. 
 
 ---
 
 ## Overview
 
-We have developed **pan-European ecological benchmarks** for freshwater typology systems using a large database of diatoms, fish, invertebrates, and macrophytes, [joint species distribution models](https://github.com/hmsc-r/hmsc-hpc/tree/main) fitted independently to subsets of this database, a novel [modification algorithm](code/09_simulate_data.R) for environments  
+We have developed **pan-European ecological benchmarks** for freshwater typology systems using a large database of diatoms, fish, invertebrates, and macrophytes, [joint species distribution models](https://github.com/hmsc-r/hmsc-hpc/tree/main) fitted independently to subsets of this database, a novel [modification algorithm](parent/code/09_simulate_data.R) for environments  
 
-The pipeline is deliberately modular so that each component — data preparation, HMSC fitting, QRF benchmarking, and evaluation — can be re-run independently against updated inputs.
-Please note that after the creation of schemes in [04_define_schemes.R](parent/code/04_define_schemes.R) all steps were run seperately for each taxonomic group. Many scripts thus assume a prallel folder structure where data/ lives inside a folder called e.g., fish/. In the code these are marked with placeholders: e.g., fish_folder.
+The pipeline is deliberately modular so that each component — data preparation, model fitting, qunatile random forests, and evaluation — can be re-run independently against updated inputs.
+Please note that after the creation of schemes in [04_define_schemes.R](parent/code/04_define_schemes.R) all steps were run seperately for each taxonomic group. Many scripts thus assume a prallel folder structure where `data/` lives inside a folder called e.g., `fish_folder/`. The script [`make_directories`](make_directories.R) prepares the necessary folder structure. 
 
 ## Scope of the paper
 
-- **Taxonomic groups.** Diatoms, fish, macroinvertebrates, macrophytes.
+- **Taxonomic groups.** diatoms, fish, macroinvertebrates, macrophytes.
 - **Geographic scope.** Continental Europe.
-- **Dataset.** ~400,000 biological samples harmonized from ~90 national and regional datasets, paired with catchment-derived environmental descriptors.
+- **Dataset.** ~400,000 biological samples harmonized from 114 national and regional datasets, paired with catchment-derived environmental descriptors.
 
 ## Repository structure
 
 ```
 .
-├── R/                    # Reusable functions sourced by the pipeline
-├── parent/code/                 # Top-level, numbered scripts (one per pipeline stage)
+├── R/                        # Reusable functions sourced by the pipeline
+├── parent/code/              # Top-level, numbered scripts (one per pipeline stage)
 │   ├── 01_add_eu_hydro_to_biota.R
 │   ├── 02_combine_env.R
 │   ├── 03_add_env_biota.R
 │   ├── 04_define_schemes.R
 │   ├── ...
-│   ├── results/
-├── docs/
+│   ├── results/             # scripts to produce figures and data for results 
+│   ├── prepare_environment  # scripts to prepare environmental data 
+├── docs/                    # Flowcharts to explain how different scripts and files are connected
 │   ├── 01_preparation.md
 │   ├── 02_hmsc.md
 │   ├── 03_simulation_evaluation_qrf.md
 │   ├── 04_results_to_paper.md
-├── shell/                  # SLURM / Singularity definition files
+├── shell/                   # shell scirpts run with SLURM on a HPC Server
+├── r_v1-4.def                
+├── hmsc_fit.def             # singularity definition file    
+├── make_directories.R       # singularity definition file             
 └── README.md
+
 ```
 
 ## Data
@@ -81,6 +86,8 @@ The scripts [05_build_hmsc_hpc_models.R](parent/code/05_build_hmsc_hpc_models.R)
 Each is associated with a shell script. These can be found in [`shell`](shell/)
 We fit the models running the shell script [02_hmsc_array.sh](shell/02_hmsc_array.sh). This script needs to be called for each taxonomic separately and from inside the respective folder (i.e., diatom_folder/ for diatoms). 
 On servers we ran two singulariy containers. One for the HMSC-HPC model which is running Tensor Flow in Python, and one for R scripts. Both container (.sif) files are in the Zenodo repository and definitions (.def) are included in this github respositroy ([here](fit_hmsc.def) and [here](r_v1-4.def)).
+The containers can be build from the .def files with 
+`singularity build --fakeroot hmsc_fi.sif hmsc_fit.def` if singularity is installed and this is called from the folder containing `hmsc_fit.def`.
 The final scirpts ([`parent/code/results/`](parent/code/results/)), which compile the results and create figures where run locally. 
 
 
