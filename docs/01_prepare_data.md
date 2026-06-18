@@ -28,7 +28,7 @@ graph TD
 	
     %% 5. Define Folders (Trapezoid shape)
     D1[/"📁 Raw Data/*"/]:::folder
-	D2[/"📁 hydroDEM_parquet/"/]:::folder
+	D2[/"📁 catchments/*"/]:::folder
 	
     
     D1 --> S1
