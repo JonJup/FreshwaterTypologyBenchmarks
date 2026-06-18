@@ -1,6 +1,13 @@
 The Raw Data are the four files: diatoms.csv, fish.csv, invertebrates.csv, and macrophytes.csv available on Zenodo. 
 All files we have made available are marked with an at the end of their name*.
 Some files have a placeholder \*taxon\* in their name. These files exist separately for each taxon and are called e.g., diatoms_w_catchment_id.rds. 
+
+Legend:     
+- ⚙️ custom scripts/functions     
+- 📜 analysis script
+- 📄 file (typically .rds)
+- 📁 directory; often reffering to all files in the respective directory
+
 ``` mermaid
 
 graph TD
