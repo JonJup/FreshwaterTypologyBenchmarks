@@ -1,3 +1,10 @@
+Legend:     
+- ⚙️ custom scripts/functions     
+- 📜 analysis script
+- 🐳 container environment
+- 📄 file (typically .rds)
+- 📁 directory; often reffering to all files in the respective directory
+
 ``` mermaid
 
 graph LR
