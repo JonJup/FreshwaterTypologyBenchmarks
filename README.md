@@ -1,4 +1,4 @@
-**Grading on a Curve: Generating context-specific Benchmarks for the Biological Evaluation of Freshwater Typology Systems**
+**Grading on a curve: generating context-specific benchmarks for the biological evaluation of freshwater typology systems**
 
 <!-- Optional badges -->
 <!-- [![DOI](https://zenodo.org/badge/DOI/xx.xxxx/zenodo.xxxxxxx.svg)](https://doi.org/xx.xxxx/zenodo.xxxxxxx) -->
@@ -7,11 +7,11 @@
 
 This repository accompanies the manuscript:    
 
-Grading on a Curve: Simulation-Based Benchmarks for the Biological Evaluation of Freshwater Typology Performance
+Grading on a curve: generating context-specific benchmarks for the biological evaluation of freshwater typology systems
 <!-- > **[Full title]** (202x). [Authors]. *[Journal]*. DOI: [xx.xxxx/xxxxxx]. Preprint: [link]. --> 
 
-It is an annonymized version of the repository which will be linked and made available upon acceptance. 
-Annonymiztaion was achieved through https://anonymous.4open.science/dashboard
+It is an anonymized version of the repository which will be linked and made available upon acceptance. 
+Anonymiztaion was achieved through https://anonymous.4open.science/dashboard
 
 It contains the code to reproduce the results reported in the paper.
 The data can be found [here](https://zenodo.org/records/20701841?preview=1&token=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6ImEyZmUzNDQxLWQ5OTMtNDE4Zi05ZTNiLTEwNWM2YThlYmI2ZiIsImRhdGEiOnt9LCJyYW5kb20iOiJhNzhiNjRjMGI1NzM3YmFmZWM2ZDBjYTcxZWZlMTE3NiJ9.FdzRNr2_NgbB6VD6KOOAgEaH1Mp1WeDVWO_6lzwYJtlIiO-CGFY_3d8xvZT0OTiMdgaGdiePCZ4r75XMIegH8A).
@@ -65,28 +65,24 @@ Please note that after the creation of schemes in [04_define_schemes.R](parent/c
 ## Data
 
 Raw biological and environmental data are **not redistributed** in this repository 
-but are available on [Zenodo](https://zenodo.org/records/20701841?preview=1&token=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6ImVmMTZmMjg4LThlNzEtNDlmZS1hNmUwLTBjN2RkY2NjNTU2MiIsImRhdGEiOnt9LCJyYW5kb20iOiJlMTU0NTI0MDM1Y2MzNTQzMTFhMTNiZTAzYjgyMmIxNSJ9.ESQO7owKnBSoYGuFdBs73TONFFTaGuvP5BhJ--YTgzEssIlaYLgx25gINDf__tttRC9jSPkUTXj7Q06CAaEPNQ)
-Data from different processing steps will be shared upon request.
+but biological data are available on [Zenodo](https://zenodo.org/records/20701841?preview=1&token=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6ImVmMTZmMjg4LThlNzEtNDlmZS1hNmUwLTBjN2RkY2NjNTU2MiIsImRhdGEiOnt9LCJyYW5kb20iOiJlMTU0NTI0MDM1Y2MzNTQzMTFhMTNiZTAzYjgyMmIxNSJ9.ESQO7owKnBSoYGuFdBs73TONFFTaGuvP5BhJ--YTgzEssIlaYLgx25gINDf__tttRC9jSPkUTXj7Q06CAaEPNQ)
+Some data from intermediate processing are made available alongside them.
 
 ## Reproducing the analyses
 
 The full pipeline can be reproduced by running the numbered scripts in order.
-Dependencies between scripts and files is shown in the 'docs/' folder.  
+Dependencies between scripts and files is shown in the ['docs/'](docs/) folder.  
 
-Parts of the analysis were run on HPC at ANNONYMIZED FOR PEER REVIEW. 
+Parts of the analysis were run on HPC at ANONYMIZED FOR PEER REVIEW. 
 
-You can start by running the scripts numbered 01,03, and 04. All required data is provided in the complimentary [Zenodo repository](https://zenodo.org/records/20701841?preview=1&token=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6ImVmMTZmMjg4LThlNzEtNDlmZS1hNmUwLTBjN2RkY2NjNTU2MiIsImRhdGEiOnt9LCJyYW5kb20iOiJlMTU0NTI0MDM1Y2MzNTQzMTFhMTNiZTAzYjgyMmIxNSJ9.ESQO7owKnBSoYGuFdBs73TONFFTaGuvP5BhJ--YTgzEssIlaYLgx25gINDf__tttRC9jSPkUTXj7Q06CAaEPNQ). Script two requires the download of openly available data which we do not reprovide here. The products of script [02_combine_env.R](parent/code/02_combine_env.R) are provided in the Zenodo Repositorty. 
+You can start by running the scripts numbered [01](parent/code/01_add_eu_hydro_to_biota), [03](parent/code/03_add_env_biota.R), and [04](parent/code/04_define_schemes.R) ([02](parent/code/02_combine_env.R) requires an external download; see below). All required data is provided in the complimentary [Zenodo repository](https://zenodo.org/records/20701841?preview=1&token=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6ImVmMTZmMjg4LThlNzEtNDlmZS1hNmUwLTBjN2RkY2NjNTU2MiIsImRhdGEiOnt9LCJyYW5kb20iOiJlMTU0NTI0MDM1Y2MzNTQzMTFhMTNiZTAzYjgyMmIxNSJ9.ESQO7owKnBSoYGuFdBs73TONFFTaGuvP5BhJ--YTgzEssIlaYLgx25gINDf__tttRC9jSPkUTXj7Q06CAaEPNQ). Script two requires the download of openly available data which we do not reprovide here. The products of script [02_combine_env.R](parent/code/02_combine_env.R) are provided in the Zenodo repositorty. 
 
 The scripts [05_build_hmsc_hpc_models.R](parent/code/05_build_hmsc_hpc_models.R) to [11_fit_qrf.R](parent/code/11_fit_qrf.R] were run on servers.
 Each is associated with a shell script. These can be found in [`shell`](shell/)
 We fit the models running the shell script [02_hmsc_array.sh](shell/02_hmsc_array.sh). This script needs to be called for each taxonomic separately and from inside the respective folder (i.e., diatom_folder/ for diatoms). 
-On servers we ran two singulariy containers. One for the HMSC-HPC model which is running Tensor Flow in Python, and one for R scripts. Both container (.sif) files are in the Zenodo repository and definitions (.def) are included in this github respositroy.
+On servers we ran two singulariy containers. One for the HMSC-HPC model which is running Tensor Flow in Python, and one for R scripts. Both container (.sif) files are in the Zenodo repository and definitions (.def) are included in this github respositroy ([here](fit_hmsc.def) and [here](r_v1-4.def)).
 The final scirpts ([`parent/code/results/`](parent/code/results/)), which compile the results and create figures where run locally. 
 
-### HPC workflow
-
-HPC jobs were managed via SLURM and the shell scripts used to submit jobs are 
-available under 'hpc/'.
 
 ## Shiny application
 
@@ -100,7 +96,7 @@ A hosted version is available **[HERE](https://pulse-shiny2-typecoherencepredict
 
 ## Funding and acknowledgments
 
-This work was supported by ANNONYMIZED FOR PEER REVIEW. 
+This work was supported by ANONYMIZED FOR PEER REVIEW. 
 
 <!-- the **DFG Walter Benjamin Fellowship** (grant no. 557888845). We thank the data providers listed in the manuscript supplement for sharing harmonised biological and environmental records. --> 
 <!-- We also wish to thank the Finnish Computing Competence Infrastructure (FCCI) for supporting this project with computational and data storage resources. --> 
@@ -108,7 +104,7 @@ This work was supported by ANNONYMIZED FOR PEER REVIEW.
 
 ## Contact
 
-Questions, bug reports, and collaboration enquiries are welcome via GitHub issues, or by email to ANNONYMIZED FOR PEER REVIEW.
+Questions, bug reports, and collaboration enquiries are welcome via GitHub issues, or by email to ANONYMIZED FOR PEER REVIEW.
 
 
 - **Code:** GPL-3.0
