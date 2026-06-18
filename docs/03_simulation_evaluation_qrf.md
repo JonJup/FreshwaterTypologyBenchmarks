@@ -54,7 +54,12 @@ H6(["⚙️ balance_clusters.R"]):::helper
 H7(["⚙️ cv_d_squared_V2.R"]):::helper
 H8(["⚙️ render_table.R"]):::helper
 
-
+subgraph ContainerA ["🐳 r1_4.sif"]
+	S5(["📜 05_simData.sh"]):::script
+    S6(["📜 07_evaluate_empirical_typologies.sh"]):::script
+	S7(["📜 07_evaluate_typologies.sh"]):::script
+	S8(["📜 08_qrf.sh"]):::script
+end
 	
 %% 5. Draw the connections
 %% 5.1 Helper to script 
@@ -100,4 +105,11 @@ S1 --> D8
 S2 --> D11
 S3 --> D12
 S4 --> D13
+
+%% Shell to scripts
+S5 --> S1
+S6 --> S2
+S7 --> S3
+S8 --> S4
+
 ```
