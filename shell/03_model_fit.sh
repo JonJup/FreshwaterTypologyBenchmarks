@@ -7,6 +7,7 @@
 #SBATCH --cpus-per-task=12
 #SBATCH --mem=128G
 #SBATCH --array=1-515
+
 # ============================================
 # Typology Evaluation Job Array
 # ============================================

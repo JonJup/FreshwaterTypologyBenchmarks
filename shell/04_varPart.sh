@@ -1,13 +1,12 @@
 #!/bin/bash
 #SBATCH --job-name=varPartDIA
-#SBATCH --output=logs/04_varPart/vp_%A_%a.log
-#SBATCH --error=logs/04_varPart/vp_%A_%a.err
+#SBATCH --output=logs/vp_%A_%a.log
+#SBATCH --error=logs/vp_%A_%a.err
 #SBATCH --partition=short
 #SBATCH --time=1:00:00
 #SBATCH --cpus-per-task=12
 #SBATCH --mem=256G
-#SBATCH --array=55,60,72,79,84,95,96,101,108,114,120,131,132,155,156
-##SBATCH --array=1-503  
+#SBATCH --array=1-503  
 
 
 # ============================================

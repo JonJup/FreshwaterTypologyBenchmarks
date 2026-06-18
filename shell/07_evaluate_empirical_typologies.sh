@@ -1,13 +1,13 @@
 #!/bin/bash
 #SBATCH --job-name=EvOrF
-#SBATCH --output=logs/06_EvOr/et_%A_%a.log
-#SBATCH --error=logs/06_EvOr/et_%A_%a.err
+#SBATCH --output=logs/et_%A_%a.log
+#SBATCH --error=logs/et_%A_%a.err
 #SBATCH --partition=long
 #SBATCH --time=1:00:00
 #SBATCH --cpus-per-task=12
 #SBATCH --mem=128G
 #SBATCH --array=1-503
-##SBATCH --array=1
+
 
 # ============================================
 # Typology Evaluation Job Array

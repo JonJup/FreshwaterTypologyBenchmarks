@@ -10,10 +10,10 @@ library(tidyverse)
 #  2. Load Data ----------------------------------------------------------------
 
 
-filesD <- list.files("Dia/data/007_evaluations/", full.names =T)
-filesF <- list.files("Fish/data/007_evaluations/", full.names =T)
-filesM <- list.files("Inv/data/007_evaluations/", full.names =T)
-filesI <- list.files("Maphy/data/007_evaluations/", full.names =T)
+filesD <- list.files("diatoms_folder/data/007_evaluations/", full.names =T)
+filesF <- list.files("fish_folder/data/007_evaluations/", full.names =T)
+filesI <- list.files("invertebrate_folder/data/007_evaluations/", full.names =T)
+filesM <- list.files("macrophytes_folder/data/007_evaluations/", full.names =T)
 
 
 # 3. Combine data ---------------------------------------------------------
@@ -29,7 +29,7 @@ data <- rbindlist(list(dataD, dataF, dataI, dataM))
 
 # 4. Save to file  --------------------------------------------------------
 
-saveRDS(data, "data/results/combined_data.rds")
+saveRDS(data, "parent/data/results/combined_data.rds")
 
 rm(dataD, dataI, dataF, dataM, filesD, filesM, filesI, filesF)
 gc()

@@ -29,7 +29,7 @@ source("R/find_max_consequtive_sum.R")
 
 # List all processed biota files
 
-bio.names <- c("diatoms", "fish", "invertebrates", "macrophytes")
+bio.names <- c("diatom", "fish", "invertebrate", "macrophytes")
 files <- c(
         list.files(paste0(bio.names, "_folder/data/biota/"), full.names = TRUE, pattern = "^02_")
 )

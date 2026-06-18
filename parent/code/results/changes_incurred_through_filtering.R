@@ -10,15 +10,13 @@ library(tmap)
 library(scales)
 
 # custom function 
-source("code/functions/find_max_consequtive_sum.R")
+source("R/find_max_consequtive_sum.R")
 
 # 2. load data ------------------------------------------------------------
-d <- fread("data/biota/diatoms.csv")
-f <- fread("data/biota/fish.csv")
-i <- fread("data/biota/invertebrates.csv")
-m <- fread("data/biota/macrophytes.csv")
-
-
+d <- fread("parent/data/biota/diatoms.csv")
+f <- fread("parent/data/biota/fish.csv")
+i <- fread("parent/data/biota/invertebrates.csv")
+m <- fread("parent/data/biota/macrophytes.csv")
 
 # 3. prepare data ------------------------------------------------------------
 
@@ -263,7 +261,7 @@ map.static <-
         )
 
 tmap_save(tm       = map.static, 
-          filename = "output/figures/supplement/map.png", 
+          filename = "parent/output/figures/supplement/map.png", 
           dpi      = 300,
           height   = 10,
           width    = 10)
@@ -316,7 +314,7 @@ data6 %>%
         theme(legend.position = "top",
               axis.text.x = element_text(angle = -45))
 
-ggsave("output/figures/supplement/histogram_years.tiff", dpi = 600)
+ggsave("parent/output/figures/supplement/histogram_years.tiff", dpi = 600)
 ## removed fraction 
 data6[, kept_fraction := sum(subset_status == "Kept")/.N, by = "eventYear"]
 data6[, n_year := uniqueN(eventID), by = "eventYear"]
@@ -343,7 +341,7 @@ data7[eventYear > 1990 & eventYear < 2024] %>%
                 plot.title = element_text(face = "bold", size = 14),
                 panel.grid.minor = element_blank() # Removes in-between grid lines for less clutter
         )
-ggsave("output/figures/supplement/fraction_years_kept.tiff", dpi = 600)
+ggsave("parent/output/figures/supplement/fraction_years_kept.tiff", dpi = 600)
 
 data6 %>%
         filter(eventYear > 1990 & eventYear < 2024) %>%
@@ -362,7 +360,7 @@ data6 %>%
         theme(
                 legend.position = "top"
         )
-ggsave("output/figures/supplement/histogram_month.tiff", dpi = 600)
+ggsave("parent/output/figures/supplement/histogram_month.tiff", dpi = 600)
 
 data6[, kept_fraction := sum(subset_status == "Kept")/.N, by = "month"]
 data6[, n_month := uniqueN(eventID), by = "month"]
@@ -391,4 +389,4 @@ data7[eventYear > 1990 & eventYear < 2024] %>%
                 plot.title = element_text(face = "bold", size = 14),
                 panel.grid.minor = element_blank() # Removes in-between grid lines for less clutter
         )
-ggsave("output/figures/supplement/fraction_month_kept.tiff", dpi = 600)
+ggsave("parent/output/figures/supplement/fraction_month_kept.tiff", dpi = 600)

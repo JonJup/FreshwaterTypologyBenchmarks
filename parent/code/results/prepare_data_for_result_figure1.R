@@ -25,10 +25,10 @@ library(tidytext)
 base_path <- # your personal path. 
 
 groups <- list(
-        D = list(dir = "diatom_folder", taxon = "diatoms"),
+        D = list(dir = "diatoms_folder", taxon = "diatoms"),
         F = list(dir = "fish_folder", taxon = "fish"),
-        I = list(dir = "invertebrate_folder", taxon = "invertebrates"),
-        M = list(dir = "macrophyte_folder", taxon = "macrophytes")
+        I = list(dir = "invertebrates_folder", taxon = "invertebrates"),
+        M = list(dir = "macrophytes_folder", taxon = "macrophytes")
 )
 
 # Helper Function
@@ -50,7 +50,7 @@ for (g in names(groups)) {
         schemes[[g]] <- readRDS(file.path(
                 root,
                 "data/biota",
-                paste0("03_", grp$taxon, "_scheme.rds")
+                paste0("03_scheme.rds")
         ))
         # Taxonomic resolution
         schem[[g]]   <- read_dir(file.path(root, "data/misc/taxonomic_resolution"))
@@ -130,5 +130,5 @@ unique(dataKey$metric)
 
 
 # save to file ------------------------------------------------------------
-saveRDS(dataKey, "data/results/results_simulated_typologies.rds")
+saveRDS(dataKey, "parent/data/results/results_simulated_typologies.rds")
 

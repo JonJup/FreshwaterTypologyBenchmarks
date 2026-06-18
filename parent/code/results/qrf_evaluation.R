@@ -16,7 +16,7 @@ library(tidymodels)
 
 # 2. prepare loop ------------------------------------------------------------
 
-taxa <- c("diatom", "fish", "invertebrate", "macrophyte")
+taxa <- c("diatoms", "fish", "invertebrates", "macrophytes")
 results_importance <- list()
 results_metrics    <- list()
 results <- list()
@@ -28,7 +28,7 @@ for (t in taxa){
         cat(sprintf("Starting with %s\n", t))
         
         # Dynamically build the directory path and set it
-        dir_path <- sprintf("data/%s_folder", t)
+        dir_path <- sprintf("%s_folder", t)
         setwd(dir_path)
 
         all_files <- list.files("data/008_qrf/", pattern = "\\.rds$", full.names = TRUE)
@@ -205,8 +205,8 @@ for (t in taxa){
                 results[[length(results)+1]] <- data.table(
                         taxon = t,
                         metric = metric_name,
-                        # oob_rmse = oob_rmse,
-                        # oob_r2 = oob_r2,
+                        oob_rmse = oob_rmse,
+                        oob_r2 = oob_r2,
                         cov_90 = coverage_90,
                         cov_50 = coverage_50
                 )
@@ -215,8 +215,7 @@ for (t in taxa){
 
 metrics    <- rbindlist(results_metrics)
 importance <- rbindlist(results_importance)
-setwd(rstudioapi::getActiveProject())
-#saveRDS(metrics   , "data/results/qrf_metrics.rds")
-saveRDS(importance, "data/results/qrf_variable_importance.rds")
+saveRDS(metrics   , "parent/data/results/qrf_metrics.rds")
+saveRDS(importance, "parent/data/results/qrf_variable_importance.rds")
 results_dt <- rbindlist(results)
-#saveRDS(results_dt, "data/results/qrf_interval_coverage.rds")
+saveRDS(results_dt, "parent/data/results/qrf_interval_coverage.rds")

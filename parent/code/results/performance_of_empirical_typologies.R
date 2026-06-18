@@ -21,10 +21,10 @@ base_path <- # path to your folders
 # 2. Load data -----------------------------------------------------------------
 
 groups <- list(
-        D = list(dir = "diatom_folder", taxon = "diatoms"),
+        D = list(dir = "diatoms_folder", taxon = "diatoms"),
         F = list(dir = "fish_folder", taxon = "fish"),
-        I = list(dir = "invertebrate_folder", taxon = "invertebrates"),
-        M = list(dir = "macrophyte_folder", taxon = "macrophytes")
+        I = list(dir = "invertebrates_folder", taxon = "invertebrates"),
+        M = list(dir = "macrophytes_folder", taxon = "macrophytes")
 )
 
 # Helper Function 
@@ -87,5 +87,5 @@ comb = rename(comb, "scheme" = "scheme_id")
 data <- data[comb, on = "scheme"]
 
 # save to file ------------------------------------------------------------
-saveRDS(data, "data/results/results_established_typologies.rds")
+saveRDS(data, "parent/data/results/results_established_typologies.rds")
 

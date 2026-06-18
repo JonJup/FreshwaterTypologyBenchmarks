@@ -13,10 +13,10 @@ library(magrittr)
 #  2. Load Data  -------------------------------------------------------
 
 
-filesD <- list.files("diatom_folder/data/004_model_fit/", full.names =T)
+filesD <- list.files("diatoms_folder/data/004_model_fit/", full.names =T)
 filesF <- list.files("fish_folder/data/004_model_fit/", full.names =T)
-filesI <- list.files("invertebrate_folder/data/004_model_fit/", full.names =T)
-filesM <- list.files("macrophyte_folder/data/004_model_fit/", full.names =T)
+filesI <- list.files("invertebrates_folder/data/004_model_fit/", full.names =T)
+filesM <- list.files("macrophytes_folder/data/004_model_fit/", full.names =T)
 
 dataD <- lapply(filesD, readRDS)
 dataF <- lapply(filesF, readRDS)
@@ -56,10 +56,10 @@ data2[good_model == TRUE, .N]
 
 #  5. Load Detailed Data -------------------------------------------------------
 
-filesD <- list.files("diatom_folder/data/004_model_fit_detail/", full.names =T)
+filesD <- list.files("diatoms_folder/data/004_model_fit_detail/", full.names =T)
 filesF <- list.files("fish_folder/data/004_model_fit_detail/", full.names =T)
-filesM <- list.files("invertebrate_folder/data/004_model_fit_detail/", full.names =T)
-filesI <- list.files("macrophyte_folder/data/004_model_fit_detail/", full.names =T)
+filesM <- list.files("invertebrates_folder/data/004_model_fit_detail/", full.names =T)
+filesI <- list.files("macrophytes_folder/data/004_model_fit_detail/", full.names =T)
 
 dataD <- lapply(filesD, readRDS)
 dataF <- lapply(filesF, readRDS)

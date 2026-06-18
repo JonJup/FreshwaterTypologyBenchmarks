@@ -1,13 +1,13 @@
 #!/bin/bash
 #SBATCH --job-name=simDia
-#SBATCH --output=logs/05_sim/sim_%A_%a.log
-#SBATCH --error=logs/05_sim/sim_%A_%a.err
+#SBATCH --output=logs/sim_%A_%a.log
+#SBATCH --error=logs/sim_%A_%a.err
 #SBATCH --partition=short
 #SBATCH --time=0:45:00
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=64G
 #SBATCH --array=296,326,327,328
-##SBATCH --array=2-515%10
+
 
 # ============================================
 # Simulation Job Array
