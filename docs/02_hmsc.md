@@ -1,3 +1,11 @@
+Legend:     
+- ⚙️ custom scripts/functions     
+- 📜 analysis script
+- 🐳 container environment
+- 📄 file (typically .rds)
+- 📁 directory; often reffering to all files in the respective directory
+
+
 ``` mermaid
 
 graph TD
@@ -55,9 +63,8 @@ graph TD
     D8 --> S8
 	D9 --> S8
     
-    
-	S7 --> S5    
-    S8 --> S6
+    S5 --> S7
+	S6 --> S8    
     S3 --> D1
     S3 --> D2
     S3 --> D3

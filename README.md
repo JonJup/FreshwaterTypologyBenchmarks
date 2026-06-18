@@ -33,7 +33,7 @@ We provide the following intermediate products:
 We have developed **pan-European ecological benchmarks** for freshwater typology systems using a large database of diatoms, fish, invertebrates, and macrophytes, [joint species distribution models](https://github.com/hmsc-r/hmsc-hpc/tree/main) fitted independently to subsets of this database, a novel [modification algorithm](code/09_simulate_data.R) for environments  
 
 The pipeline is deliberately modular so that each component — data preparation, HMSC fitting, QRF benchmarking, and evaluation — can be re-run independently against updated inputs.
-Please note that after the creation of schemes in [04_define_schemes.R](code/04_define_schemes.R) all steps were run seperately for each taxonomic group. Many scripts thus assume a prallel folder structure where data/ lives inside a folder called e.g., fish/. In the code these are marked with placeholders: e.g., fish_folder.
+Please note that after the creation of schemes in [04_define_schemes.R](parent/code/04_define_schemes.R) all steps were run seperately for each taxonomic group. Many scripts thus assume a prallel folder structure where data/ lives inside a folder called e.g., fish/. In the code these are marked with placeholders: e.g., fish_folder.
 
 ## Scope of the paper
 
@@ -46,7 +46,7 @@ Please note that after the creation of schemes in [04_define_schemes.R](code/04_
 ```
 .
 ├── R/                    # Reusable functions sourced by the pipeline
-├── code/                 # Top-level, numbered scripts (one per pipeline stage)
+├── parent/code/                 # Top-level, numbered scripts (one per pipeline stage)
 │   ├── 01_add_eu_hydro_to_biota.R
 │   ├── 02_combine_env.R
 │   ├── 03_add_env_biota.R
@@ -58,7 +58,7 @@ Please note that after the creation of schemes in [04_define_schemes.R](code/04_
 │   ├── 02_hmsc.md
 │   ├── 03_simulation_evaluation_qrf.md
 │   ├── 04_results_to_paper.md
-├── hpc/                  # SLURM / Singularity definition files
+├── shell/                  # SLURM / Singularity definition files
 └── README.md
 ```
 
@@ -75,13 +75,13 @@ Dependencies between scripts and files is shown in the 'docs/' folder.
 
 Parts of the analysis were run on HPC at ANNONYMIZED FOR PEER REVIEW. 
 
-You can start by running the scripts numbered 01 - 05. All required data is provided in the complimentary [Zenodo repository](https://zenodo.org/records/20701841?preview=1&token=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6ImVmMTZmMjg4LThlNzEtNDlmZS1hNmUwLTBjN2RkY2NjNTU2MiIsImRhdGEiOnt9LCJyYW5kb20iOiJlMTU0NTI0MDM1Y2MzNTQzMTFhMTNiZTAzYjgyMmIxNSJ9.ESQO7owKnBSoYGuFdBs73TONFFTaGuvP5BhJ--YTgzEssIlaYLgx25gINDf__tttRC9jSPkUTXj7Q06CAaEPNQ). 
+You can start by running the scripts numbered 01,03, and 04. All required data is provided in the complimentary [Zenodo repository](https://zenodo.org/records/20701841?preview=1&token=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6ImVmMTZmMjg4LThlNzEtNDlmZS1hNmUwLTBjN2RkY2NjNTU2MiIsImRhdGEiOnt9LCJyYW5kb20iOiJlMTU0NTI0MDM1Y2MzNTQzMTFhMTNiZTAzYjgyMmIxNSJ9.ESQO7owKnBSoYGuFdBs73TONFFTaGuvP5BhJ--YTgzEssIlaYLgx25gINDf__tttRC9jSPkUTXj7Q06CAaEPNQ). Script two requires the download of openly available data which we do not reprovide here. The products of script [02_combine_env.R](parent/code/02_combine_env.R) are provided in the Zenodo Repositorty. 
 
-The results are predefined HMSC models that can be run on and HPC. The unfitted models could also be run locally. This option is provided thought the script "". Note that we ran all HMSC models through HMSC-HPC on a server and have not validated complete reproducibility through the local version. However, to the best of our knowledge it should produce qualitatively equivalent results. Some models will likely exceed capabilities of local machines as they required upwards of 300GB RAM. 
-
-We fit the models running the shell script 02_hmsc_array.sh. This script needs to be called for each taxonomic separately and from inside the respective folder (i.e., diatom_folder/ for diatoms). 
+The scripts [05_build_hmsc_hpc_models.R](parent/code/05_build_hmsc_hpc_models.R) to [11_fit_qrf.R](parent/code/11_fit_qrf.R] were run on servers.
+Each is associated with a shell script. These can be found in [`shell`](shell/)
+We fit the models running the shell script [02_hmsc_array.sh](shell/02_hmsc_array.sh). This script needs to be called for each taxonomic separately and from inside the respective folder (i.e., diatom_folder/ for diatoms). 
 On servers we ran two singulariy containers. One for the HMSC-HPC model which is running Tensor Flow in Python, and one for R scripts. Both container (.sif) files are in the Zenodo repository and definitions (.def) are included in this github respositroy.
-The final scirpts (`arent/code/results/`), which compile the results and create figures where run locally. 
+The final scirpts ([`parent/code/results/`](parent/code/results/)), which compile the results and create figures where run locally. 
 
 ### HPC workflow
 
