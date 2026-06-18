@@ -1,5 +1,6 @@
 The Raw Data are the four files: diatoms.csv, fish.csv, invertebrates.csv, and macrophytes.csv available on Zenodo. 
-All files we have made available are marked with an *. 
+All files we have made available are marked with an at the end of their name*.
+Some files have a placeholder \*taxon\* in their name. These files exist separately for each taxon and are called e.g., diatoms_w_catchment_id.rds. 
 ``` mermaid
 
 graph TD
@@ -23,7 +24,7 @@ graph TD
     F1["📄 *taxon*_w_catchment_id.rds"]:::file
     F2["📄 *EU_HYDRO_CATCHMENT*_w_variables.parquet"]:::file
     F3["📄 eu_hydro_dem_w_enz.rds*"]:::file
-    F4["📄 *taxon*_scheme.rds"]:::file
+    F4["📄 scheme.rds"]:::file
     F5["📄 *taxon*_w_environment.rds*"]:::file
 	
     %% 5. Define Folders (Trapezoid shape)
