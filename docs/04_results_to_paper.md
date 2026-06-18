@@ -1,4 +1,3 @@
-=== WORKFLOW 1: Empirical typologies ===
 
 ```mermaid
 flowchart LR
@@ -68,7 +67,7 @@ SF_FIG1 --> G_CDC
 SF_QTC --> G_BA
 SF_SF6 --> G_SF6
 ```
-=== WORKFLOW 3: HMSC & QRF (model-based analyses) ===
+
 ``` mermaid
 flowchart LR
 
@@ -124,7 +123,6 @@ F7 --> SF2
 
 SF2 --> G2
 ``` 
-=== WORKFLOW 4: Maps & filtering diagnostics ===
 
 ``` mermaid
 flowchart LR
