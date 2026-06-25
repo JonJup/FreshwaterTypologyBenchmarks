@@ -19,6 +19,9 @@ The linked Zenodo contains two kinds of data.
 - Raw data which will be made available with extensive meta data upon acceptance of the manuscript
 - Intermediate Products from the analysis pipleine provided to ease the review process. The data will not be made broadly available upon acceptance. 
 
+Please note that we were not allowed to publish spatial coordiantes of one consitutent data set (invertebrates_switzerland_BDM). This will data set will be removed in the filtering steps which introduces a difference between the analyses obtained from the Zenodo folder and those reported in the paper. 
+The data from the Siwss Biodiversity monitoring can be obtained upon requrest from [here](https://www.biodiversitymonitoring.ch/index.php/en/data/data-orders).
+
 The raw environmental data are openly available and not provided again here, as they contain some large files. All links are provided in the respective R scirpts (see [`code/prepare_environment`](parent/code/prepare_environment)).
 
 We provide the following intermediate products:
