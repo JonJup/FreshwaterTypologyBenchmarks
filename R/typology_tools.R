@@ -8,7 +8,6 @@
 #                   functions are used for simulated and for real typologies
 #                   (e.g. broad river types, HER, FEOW), so both are described
 #                   identically.
-# Author:       Jonathan Jupke
 # Dependencies: stats (base R), cluster (silhouette), vegclust (fuzzy c-means)
 ################################################################################
 
