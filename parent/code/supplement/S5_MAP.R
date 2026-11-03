@@ -23,7 +23,7 @@ tile_url <- paste0("https://tiles.stadiamaps.com/tiles/stamen_terrain_background
 # MIDFIRE data ------------------------------------------------------------
 path_midfire <- "E://Arbeit/data/biota/MIDFIRE/data/"
 pathToProject <- c("~/projects/pulse/01_wp1/MEE_REVISION_1/data/000_biota/")
-path_turso <- "//turso-fs.cs.helsinki.fi/turso/home/jonjupke"
+path_turso <- ""
 # load data ---------------------------------------------------------------
 d <- readRDS(file.path(path_midfire, "midfire_diatoms.rds"))
 f <- readRDS(file.path(path_midfire, "midfire_fish.rds"))
