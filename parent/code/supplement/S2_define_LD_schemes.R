@@ -13,14 +13,6 @@
 
 #                     If abundance data is available, different schemes are run 
 #                     for abundance and for presence/absence.
-# 
-# Author:             Jonathan Jupke
-# Date Created:       2025-09-18
-# Last Modified:      2026-10-08
-#
-# R Version:          R 4.6.1
-# Required Packages:  data.table
-#
 # Notes:              Modified sampling strategy from 100-step to log-scale based on
 #                     red team analysis identifying non-linear metric stabilization patterns.
 ################################################################################
