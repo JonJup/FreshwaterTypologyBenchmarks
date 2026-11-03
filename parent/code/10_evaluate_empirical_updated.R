@@ -3,11 +3,6 @@
 # Description:        Evaluate coherence between typologies of the ORIGINAL
 #                     (unmanipulated) environment and the OBSERVED communities.
 #                     Counterpart of evaluate_typologies.R (array version).
-#
-# Author:             Jonathan Jupke
-# R Version:          R 4.5.1
-# Required Packages:  data.table, vegan, parallelDist, vegclust, cluster
-#
 # Usage:              Rscript evaluate_originals.R --iter_id <ID> --input <file> --output <file>
 #                     --input is the SIMULATION OUTPUT of one model, i.e. the
 #                     same file evaluate_typologies.R reads, so both scripts
