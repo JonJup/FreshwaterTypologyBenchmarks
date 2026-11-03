@@ -22,13 +22,6 @@
 #                           n_schemes   number of schemes (subsets x sample sizes)
 #                           n_data_sets number of data sets contributing
 #                       - four figures (see section 5)
-#
-# Author:             Jonathan Jupke
-# Date Created:       2026-10-09
-#
-# R Version:          R 4.6.1
-# Required Packages:  data.table, ggplot2
-#
 # Notes:              Sites without a dist_ref value (no match in the stressor
 #                     database) are excluded at every threshold, including
 #                     100 %. Their number is reported per taxon in section 3.
