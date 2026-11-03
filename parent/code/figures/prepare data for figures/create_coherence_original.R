@@ -3,10 +3,6 @@
 # Description:        Evaluates the type coherence of all the typologies
 #                     build from the original, unmodified environmental variables 
 #                     for all four taxonomic groups  
-#
-# Author:             Jonathan Jupke
-# Date:               05.02.2026
-# Date:               16.10.2026
 ################################################################################*
 
 # ==============================================================================**
