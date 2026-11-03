@@ -2,7 +2,7 @@ library(data.table)
 library(flextable)
 library(officer)
 
-setwd("//turso-fs.cs.helsinki.fi/turso/home/jonjupke/")
+setwd("")
 
 
 files <- vector(mode="list", length = 4)
