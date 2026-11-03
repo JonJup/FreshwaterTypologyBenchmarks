@@ -20,7 +20,7 @@ The linked Zenodo contains two kinds of data.
 - Intermediate Products from the analysis pipeline provided to ease the review process. This data will not be made broadly available upon acceptance. 
 
 Please note that we were not allowed to publish spatial coordinates of one constituent data set (invertebrates_switzerland_BDM). This will data set will be removed in the filtering steps which introduces a difference between the analyses obtained from the Zenodo folder and those reported in the paper. 
-The data from the SWiss Biodiversity monitoring can be obtained upon request from [here](https://www.biodiversitymonitoring.ch/index.php/en/data/data-orders).
+The data from the Swiss Biodiversity monitoring can be obtained upon request from [here](https://www.biodiversitymonitoring.ch/index.php/en/data/data-orders).
 
 The raw environmental data are openly available and not provided again here, as they contain some large files. All links are provided in the respective R scripts (see [`code/prepare_environment`](parent/code/prepare_environment)).
 
@@ -36,7 +36,7 @@ We provide the following intermediate products:
 We have developed **pan-European ecological benchmarks** for freshwater typology systems using a large database of diatoms, fish, invertebrates, and macrophytes, [joint species distribution models](https://github.com/hmsc-r/hmsc-hpc/tree/main) fitted independently to subsets of this database, a novel [modification algorithm](parent/code/09_simulate_data.R) for environments  
 
 The pipeline is deliberately modular so that each component — data preparation, model fitting, qunatile random forests, and evaluation — can be re-run independently against updated inputs.
-Please note that after the creation of schemes in [04_define_schemes.R](parent/code/04_define_schemes.R) all steps were run seperately for each taxonomic group. Many scripts thus assume a prallel folder structure where `data/` lives inside a folder called e.g., `fish_folder/`. The script [`make_directories`](make_directories.R) prepares the necessary folder structure. 
+Please note that after the creation of schemes in [04_define_schemes.R](parent/code/04_define_schemes.R) all steps were run seperately for each taxonomic group. Many scripts thus assume a parallel folder structure where `data/` lives inside a folder called e.g., `fish_folder/`. The script [`make_directories`](make_directories.R) prepares the necessary folder structure. 
 
 ## Scope of the paper
 
