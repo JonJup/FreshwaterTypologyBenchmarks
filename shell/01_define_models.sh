@@ -1,13 +1,13 @@
 #!/bin/bash
-#SBATCH --job-name=define_model
-#SBATCH --output=logs/def_%A_%a.log
-#SBATCH --error=logs/def_%A_%a.err
-#SBATCH --partition=short
-#SBATCH --time=0:40:00
+#SBATCH --job-name=DIA_DEF
+#SBATCH --output=logs/01_define/def_%A_%a.log
+#SBATCH --error=logs/01_define/def_%A_%a.err
+#SBATCH -C ukko,c
+#SBATCH --time=0:10:00
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=16G
-#SBATCH --array=1-515
-
+##SBATCH --array=1-515
+#SBATCH --array=158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191
 
 # ============================================
 # Model Definition Job Array
@@ -24,8 +24,8 @@ echo "Date:         $(date)"
 echo ""
 
 # 2. Paths
-SCRIPT_PATH="../parent/code/05_build_hmsc_hpc_models.R"
-CONTAINER_PATH="../parent/shell/r_v1-4.sif"
+SCRIPT_PATH="../pulse/code/05_build_hmsc_hpc_models.R"
+CONTAINER_PATH="../pulse/container/r_v1-4.sif"
 
 # 3. Execution
 echo "Starting R analysis for row $SLURM_ARRAY_TASK_ID..."

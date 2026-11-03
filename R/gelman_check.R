@@ -1,6 +1,10 @@
-gelman_check <- function(posterior){
+gelman_check <- function(posterior, skip = F){
 
-        o.ge    <- gelman.diag(x = posterior$Beta, multivariate = FALSE)
+        if (!skip) {
+                o.ge    <- gelman.diag(x = posterior$Beta, multivariate = FALSE)
+        } else {
+                o.ge <- posterior
+        }
         dt <- data.table(rowname = rownames(o.ge$psrf))
         dt[, taxon :=  regmatches(rowname, regexpr(",\\s.*\\(S", rowname))]
         dt[, taxon :=   gsub("^,\\s*", "", taxon)]

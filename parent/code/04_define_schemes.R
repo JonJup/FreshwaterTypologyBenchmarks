@@ -21,7 +21,7 @@
 
 
 library(data.table)
-source("R/find_max_consequtive_sum.R")
+source("code/functions/find_max_consequtive_sum.R")
 
 # ================================================*
 ## 1.2 load data ----

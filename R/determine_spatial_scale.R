@@ -3,8 +3,8 @@ determine_spatial_scale <- function(x, scheme){
         sites <- unique(x, by = "siteID")
         
         o.sf  <- sf::st_as_sf(sites,
-                              coords = c("x.coord", "y.coord"),
-                              crs = 3035)
+                         coords = c("x.coord", "y.coord"),
+                         crs = 3035)
         
         o.sf2 <- o.sf
         o.sf2 <- sf::st_transform(o.sf, crs = 4326)

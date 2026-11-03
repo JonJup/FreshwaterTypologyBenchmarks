@@ -55,6 +55,24 @@ ppc_prevalence <- function(obs_comm, sim_comm_list) {
                 z_score = z_scores,
                 flag = flags
         )
+        
+        # # Create prevalence histogram comparison data for plotting
+        # prevalence_bins <- seq(0, 1, by = 0.05)
+        # 
+        # obs_hist <- hist(obs_prev, breaks = prevalence_bins, plot = FALSE)
+        # sim_hists <- lapply(sim_prev_list, function(sp) {
+        #         hist(sp, breaks = prevalence_bins, plot = FALSE)$counts
+        # })
+        # sim_hist_matrix <- do.call(rbind, sim_hists)
+        # 
+        # histogram_comparison <- data.frame(
+        #         bin_midpoint = obs_hist$mids,
+        #         obs_count = obs_hist$counts,
+        #         sim_mean = colMeans(sim_hist_matrix),
+        #         sim_lower = apply(sim_hist_matrix, 2, quantile, probs = 0.025),
+        #         sim_upper = apply(sim_hist_matrix, 2, quantile, probs = 0.975)
+        # )
+        
         # Overall flag: are rare species or ubiquitous species counts way off?
         summary_flag <- sum(flags[c("n_rare", "n_ubiquitous")]) >= 1
         
@@ -64,3 +82,25 @@ ppc_prevalence <- function(obs_comm, sim_comm_list) {
                 overall_flag = sum(results$flag) > 2
         ))
 }
+
+# Plotting function
+# plot_prevalence_check <- function(ppc_result) {
+#         library(ggplot2)
+#         
+#         ggplot(ppc_result$histogram, aes(x = bin_midpoint)) +
+#                 geom_ribbon(aes(ymin = sim_lower, ymax = sim_upper), 
+#                             fill = "grey80", alpha = 0.5) +
+#                 geom_line(aes(y = sim_mean), color = "grey40", linewidth = 1) +
+#                 geom_line(aes(y = obs_count), color = "red", linewidth = 1.5) +
+#                 geom_point(aes(y = obs_count), color = "red", size = 2) +
+#                 labs(x = "Species Prevalence (proportion of sites)",
+#                      y = "Number of Species",
+#                      title = "Species Prevalence Distribution: Observed vs Simulated",
+#                      subtitle = "Red = Observed, Grey = 95% envelope of simulations") +
+#                 theme_minimal()
+# }
+
+# Usage:
+# result <- ppc_prevalence(observed_community, simulations)
+# print(result$summary_stats)
+# plot_prevalence_check(result)

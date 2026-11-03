@@ -1,21 +1,17 @@
 #!/bin/bash
-#SBATCH --job-name=hmsc_*taxon*
-#SBATCH --output=logs/hmsc_%A_%a.log
-#SBATCH --error=logs/hmsc_%A_%a.err
-#SBATCH --partition=short
-#SBATCH --time=1:00:00
-#SBATCH --cpus-per-task=24            
-#SBATCH --mem=128G                   
-#SBATCH --array=1-515
+#SBATCH --job-name=hmsc_diatoms
+#SBATCH --output=logs/02_fitted/hmsc_%A_%a.log
+#SBATCH --error=logs/02_fitted/hmsc_%A_%a.err
+#SBATCH -C ukko,c
+#SBATCH --time=0:45:00
+#SBATCH --cpus-per-task=12
+#SBATCH --mem=64G
+#SBATCH --array=158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191
+##SBATCH --array=157
 
 # ============================================
 # HMSC Job Array - Two chains per job (Parallel)
 # ============================================
-
-# --- Configuration ---
-# Taxon group used to build input/output file names.
-# Change this to switch e.g. to "macrophytes", "fish", etc.
-TAXON="diatoms"
 
 echo "=========================================="
 echo "HMSC-HPC Array Job"
@@ -24,7 +20,6 @@ echo "Job ID:     $SLURM_JOB_ID"
 echo "Array ID:   $SLURM_ARRAY_TASK_ID"
 echo "Hostname:   $(hostname)"
 echo "CPUs Total: $SLURM_CPUS_PER_TASK"
-echo "Taxon:        $TAXON"
 echo ""
 
 # Force CPU-only execution
@@ -50,11 +45,11 @@ echo "Model ID:    $MODEL_ID"
 echo ""
 
 # Construct file paths
-INPUT_FILE="data/002_initialized_hmsc_models/${TAXON}_${MODEL_ID}.rds"
+INPUT_FILE="data/002_initialized_hmsc_models/diatoms_${MODEL_ID}.rds"
 
 # Define separate output files for each chain
-OUTPUT_FILE_C0="data/003_fitted_hmsc_models/${TAXON}_${MODEL_ID}_c0.rds"
-OUTPUT_FILE_C1="data/003_fitted_hmsc_models/${TAXON}_${MODEL_ID}_c1.rds"
+OUTPUT_FILE_C0="data/003_fitted_hmsc_models/diatoms_${MODEL_ID}_c0.rds"
+OUTPUT_FILE_C1="data/003_fitted_hmsc_models/diatoms_${MODEL_ID}_c1.rds"
 
 # Check if input file exists
 if [ ! -f "$INPUT_FILE" ]; then
@@ -81,7 +76,7 @@ START_TIME=$(date +%s)
 # --- RUN CHAIN 0 IN BACKGROUND ---
 # Note the '&' at the end
 echo "Launching Chain 0..."
-singularity exec ../parent/shell/hmsc.sif python3 -m hmsc.run_gibbs_sampler \
+singularity exec ../pulse/container/hmsc.sif python3 -m hmsc.run_gibbs_sampler \
     --input "$INPUT_FILE" \
     --output "$OUTPUT_FILE_C0" \
     --samples 2150 \
@@ -96,7 +91,7 @@ PID_C0=$!
 # --- RUN CHAIN 1 IN BACKGROUND ---
 # Note the '&' at the end
 echo "Launching Chain 1..."
-singularity exec ../parent/shell/hmsc.sif python3 -m hmsc.run_gibbs_sampler \
+singularity exec ../pulse/container/hmsc.sif python3 -m hmsc.run_gibbs_sampler \
     --input "$INPUT_FILE" \
     --output "$OUTPUT_FILE_C1" \
     --samples 2150	 \

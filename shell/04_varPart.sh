@@ -1,22 +1,18 @@
 #!/bin/bash
-#SBATCH --job-name=varPartDIA
-#SBATCH --output=logs/vp_%A_%a.log
-#SBATCH --error=logs/vp_%A_%a.err
-#SBATCH --partition=short
-#SBATCH --time=1:00:00
-#SBATCH --cpus-per-task=12
-#SBATCH --mem=256G
-#SBATCH --array=1-503  
+#SBATCH --job-name=DIA_VP
+#SBATCH --output=logs/04_varPart/vp_%A_%a.log
+#SBATCH --error=logs/04_varPart/vp_%A_%a.err
+#SBATCH -C ukko,c
+#SBATCH --time=0:30:00
+#SBATCH --cpus-per-task=8
+#SBATCH --mem=16G
+#SBATCH --array=158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191
+
 
 
 # ============================================
 # Variation Partitioning Job Array
 # ============================================
-
-# --- Configuration ---
-# Taxon group used to build input/output file names.
-# Change this to switch e.g. to "macrophytes", "fish", etc.
-TAXON="diatoms"
 
 echo "=========================================="
 echo "Array Job"
@@ -26,7 +22,6 @@ echo "Array ID:   $SLURM_ARRAY_TASK_ID"
 echo "Hostname:   $(hostname)"
 echo "Date:       $(date)"
 echo "CPUs:       $SLURM_CPUS_PER_TASK"
-echo "Taxon:        $TAXON"
 echo ""
 
 # Force CPU-only execution
@@ -47,8 +42,8 @@ echo ""
 
 # Construct file paths using the 0-padded model ID
 MODEL_ID_PADDED=$(printf "%04d" $MODEL_ID)
-INPUT_FILE="data/001_unfitted_hmsc_models/${TAXON}_${MODEL_ID_PADDED}.rds"
-OUTPUT_FILE="data/005_variation_partitioning/${TAXON}_${MODEL_ID_PADDED}.rds"
+INPUT_FILE="data/001_unfitted_hmsc_models/diatoms_${MODEL_ID_PADDED}.rds"
+OUTPUT_FILE="data/005_variation_partitioning/diatoms_${MODEL_ID_PADDED}.rds"
 
 # Check if input file exists
 if [ ! -f "$INPUT_FILE" ]; then
@@ -72,7 +67,7 @@ echo "Starting R analysis..."
 START_TIME=$(date +%s)
 
 # Run R script with singularity, passing the array task ID
-singularity exec ../parent/shell/r_v1-4.sif Rscript ../parent/code/08_variation_partitioning.R \
+singularity exec ../pulse/container/r_v1-4.sif Rscript ../pulse/code/08_variation_partitioning.R \
     --iter_id $SLURM_ARRAY_TASK_ID \
     --input "$INPUT_FILE" \
     --output "$OUTPUT_FILE"
