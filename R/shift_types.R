@@ -3,61 +3,8 @@
 # Description:  Unit-free manipulation of how distinct the types of a typology
 #               are, plus the descriptors recorded for every manipulated
 #               environment.
-# Replaces:     adjust_clusters_lda.R (delete that file)
-# Author:       Jonathan Jupke
 # Dependencies: MASS (only for ld1_dominance(), called as MASS::lda)
 #
-# ------------------------------------------------------------------------------
-# The manipulation
-# ------------------------------------------------------------------------------
-# Each site value is decomposed into the grand mean, the deviation of its type
-# centroid from the grand mean, and the site's deviation from its centroid:
-#
-#     x_i = mu + (c_t - mu) + (x_i - c_t)
-#           |       |             |
-#         grand  between-type  within-type
-#         mean   component     component
-#
-# where t = t(i) is the type of site i, c_t the centroid (mean) of type t, and
-# mu the grand mean over all sites. The manipulation multiplies only the
-# between-type component by gamma:
-#
-#     x_i(gamma) = mu + gamma * (c_t - mu) + (x_i - c_t)
-#                = x_i + (gamma - 1) * (c_t - mu)
-#
-# All sites of a type move by the same vector, i.e. each type is translated
-# rigidly and its centroid moves from c_t to mu + gamma * (c_t - mu).
-# gamma < 1 makes types less distinct, gamma > 1 more distinct, gamma = 1
-# leaves the data unchanged, gamma = 0 would give all types the same mean.
-#
-# Exact consequences (before clipping to physical bounds):
-#   grand mean mu                                  unchanged
-#   within-type covariance W (shape, spread and    unchanged
-#     correlations of every type)
-#   between-type covariance B                      multiplied by gamma^2
-#   LDA axes (eigenvectors of W^-1 B)              unchanged
-#   LDA eigenvalues                                all multiplied by gamma^2
-#   share of between-type variance per LD axis     unchanged
-#   Mahalanobis distance between type centroids    multiplied by gamma
-#   linear equalities satisfied by every site      preserved (e.g. shares that
-#                                                  sum to one still do)
-#
-# Unit-free: for any invertible linear transformation y = x A + b (rescaling,
-# standardisation, change of units) the shift of y equals the transformed
-# shift of x. The manipulation can therefore be done in raw units and converted
-# to model units afterwards, and the result is the same as if it had been done
-# in model units.
-#
-# Relation to the former LDA-based manipulation: the discriminant scores of all
-# sites change by (gamma - 1) * z_c, exactly as in adjust_clusters_lda(). The
-# shift is the smallest change, measured in within-type Mahalanobis distance,
-# that achieves this. adjust_clusters_lda() achieved the same discriminant-space
-# result with a Euclidean pseudoinverse, which made the resulting environment
-# depend on the units of the variables.
-#
-# Not preserved: physical bounds. For gamma > 1, sites of extreme types move
-# further out. clip_to_bounds() enforces declared bounds afterwards, and
-# achieved_gamma() measures how much clipping weakened the manipulation.
 ################################################################################
 
 
