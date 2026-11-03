@@ -15,7 +15,7 @@ library(ggplot2)
 # 0. SETTINGS
 # ==============================================================================*
 
-BASE_DIR      <- "//turso-fs.cs.helsinki.fi/turso/home/jonjupke"
+BASE_DIR      <- ""
 TAXON_FOLDERS <- c("pulseD", "pulseF", "pulseM", "pulseI")
 DIAG_SUBDIR   <- "data/misc/simulation_diagnostics"      # contains models/ and iterations/
 MODEL_SUBDIR  <- "data/001_unfitted_hmsc_models"         # NULL: do not report "no diagnostics"
