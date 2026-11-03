@@ -1,4 +1,4 @@
-#!/usr/bin/env Rscript
+
 ## plot_subset_coverage.R
 ## Figures for subset_coverage.R. Run from the project root.
 ##   fig_subset_coverage_curves      coverage vs. pressure threshold, all groups;
@@ -12,6 +12,7 @@
 library(data.table)
 library(sf)
 library(ggplot2)
+
 source("code/functions/coverage_metrics.R")   # lab()
 
 ## ---- settings -----------------------------------------------------------------
