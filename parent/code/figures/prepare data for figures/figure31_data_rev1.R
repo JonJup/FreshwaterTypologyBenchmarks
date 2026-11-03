@@ -1,5 +1,5 @@
 ## ============================================================================
-## Compile Data for Figure 3.1 from raw results
+## Compile Data for Figure S23 
 ## ============================================================================
 
 # ==============================================================================
@@ -14,14 +14,13 @@ library(viridis)     # color scales
 library(scales)      # axis formatting
 library(pROC)
 library(tidytext)
-#setwd("//turso-fs.cs.helsinki.fi/home/jonjupke")
 
 # ==============================================================================
 #  2. Load Data 
 # ==============================================================================
 
 # Configuration 
-base_path <- "//turso-fs.cs.helsinki.fi/turso/home/jonjupke"
+base_path <- ""
 
 groups <- list(
         D = list(dir = "pulseD", taxon = "diatoms"),
