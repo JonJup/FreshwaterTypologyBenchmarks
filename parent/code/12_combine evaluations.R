@@ -7,7 +7,7 @@ library(data.table)
 library(tidyverse)
 
 
-data_dir <- "//turso-fs.cs.helsinki.fi/turso/home/jonjupke/"
+data_dir <- ""
 
 #  2. Load Data ----------------------------------------------------------------
 
