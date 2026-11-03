@@ -1,92 +1,97 @@
-**Grading on a Curve: Generating context-specific Benchmarks for the Biological Evaluation of Freshwater Typology Systems**
+**Grading on a curve: generating context-specific benchmarks for the biological evaluation of freshwater typology systems**
 
 <!-- Optional badges -->
 <!-- [![DOI](https://zenodo.org/badge/DOI/xx.xxxx/zenodo.xxxxxxx.svg)](https://doi.org/xx.xxxx/zenodo.xxxxxxx) -->
 <!-- [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) -->
 <!-- [![Shiny app](https://img.shields.io/badge/Shiny-app-blue)](https://<your-shinyapps-url>) -->
 
-This repository accompanies the manuscript:    
+This repository accompanies the manuscript:
 
-Grading on a Curve: Simulation-Based Benchmarks for the Biological Evaluation of Freshwater Typology Performance
+Grading on a curve: generating context-specific benchmarks for the biological evaluation of freshwater typology systems
 <!-- > **[Full title]** (202x). [Authors]. *[Journal]*. DOI: [xx.xxxx/xxxxxx]. Preprint: [link]. --> 
 
-It is an annonymized version of the repository which will be linked and made available upon acceptance. 
-Annonymiztaion was achieved through https://anonymous.4open.science/dashboard
+It is an anonymized version of the repository which will be linked and made available upon acceptance. 
+Anonymization was achieved through https://anonymous.4open.science/dashboard
 
 It contains the code to reproduce the results reported in the paper.
 The data can be found [here](https://zenodo.org/records/20701841?preview=1&token=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6ImEyZmUzNDQxLWQ5OTMtNDE4Zi05ZTNiLTEwNWM2YThlYmI2ZiIsImRhdGEiOnt9LCJyYW5kb20iOiJhNzhiNjRjMGI1NzM3YmFmZWM2ZDBjYTcxZWZlMTE3NiJ9.FdzRNr2_NgbB6VD6KOOAgEaH1Mp1WeDVWO_6lzwYJtlIiO-CGFY_3d8xvZT0OTiMdgaGdiePCZ4r75XMIegH8A).
 The linked Zenodo contains two kinds of data. 
 - Raw data which will be made available with extensive meta data upon acceptance of the manuscript
-- Intermediate Products from the analysis pipleine provided to ease the review process. The data will not be made broadly available upon acceptance. 
+- Intermediate Products from the analysis pipeline provided to ease the review process. This data will not be made broadly available upon acceptance. 
 
-The raw environmental data are openly available and not provided again here, as they contain some large files. All links are provided in the respective R scirpts (see code/prepare_environment).
+Please note that we were not allowed to publish spatial coordinates of one constituent data set (invertebrates_switzerland_BDM). This will data set will be removed in the filtering steps which introduces a difference between the analyses obtained from the Zenodo folder and those reported in the paper. 
+The data from the Swiss Biodiversity monitoring can be obtained upon request from [here](https://www.biodiversitymonitoring.ch/index.php/en/data/data-orders).
+
+The raw environmental data are openly available and not provided again here, as they contain some large files. All links are provided in the respective R scripts (see [`code/prepare_environment`](parent/code/prepare_environment)).
 
 We provide the following intermediate products:
 - biological data (i.e., the raw data) with environmental variables from respective catchments (biota/*taxon*_w_environment.rds).
-- The EU HydroDEM catchments with an assigned Environmental Zone (eu_hydro_dem_w_enz.rds).
-- For each of the taxon-group specific steps, we provide some example files for the invertebrates. These examples enable reviews to run the code and confirm that it is working. Uploading all data would exceed Zenodo storage limits. 
+- The [EU HydroDEM catchments](https://land.copernicus.eu/en/products/eu-hydro/eu-hydro-river-network-database) with an assigned [Environmental Zone](https://sdi.eea.europa.eu/catalogue/idp/api/records/6ef007ab-1fcd-4c4f-bc96-14e8afbcb688) (eu_hydro_dem_w_enz.rds).
+- For each of the taxon-group specific steps, we provide some example files for the invertebrates. These examples enable reviews to run the code and confirm that it is working. Uploading all data would exceed Zenodo's storage limits. 
 
 ---
 
 ## Overview
 
-We have developed **pan-European ecological benchmarks** for freshwater typology systems using a large database of diatoms, fish, invertebrates, and macrophytes, [joint species distribution models](https://github.com/hmsc-r/hmsc-hpc/tree/main) fitted independently to subsets of this database, a novel [modification algorithm](code/09_simulate_data.R) for environments  
+We have developed **pan-European ecological benchmarks** for freshwater typology systems using a large database of diatoms, fish, invertebrates, and macrophytes, [joint species distribution models](https://github.com/hmsc-r/hmsc-hpc/tree/main) fitted independently to subsets of this database, a novel [modification algorithm](parent/code/09_simulate_data.R) for environments  
 
-The pipeline is deliberately modular so that each component — data preparation, HMSC fitting, QRF benchmarking, and evaluation — can be re-run independently against updated inputs.
-Please note that after the creation of schemes in [04_define_schemes.R](parent/code/04_define_schemes.R) all steps were run seperately for each taxonomic group. Many scripts thus assume a prallel folder structure where data/ lives inside a folder called e.g., fish/. In the code these are marked with placeholders: e.g., fish_folder.
+The pipeline is deliberately modular so that each component — data preparation, model fitting, qunatile random forests, and evaluation — can be re-run independently against updated inputs.
+Please note that after the creation of schemes in [04_define_schemes.R](parent/code/04_define_schemes.R) all steps were run seperately for each taxonomic group. Many scripts thus assume a parallel folder structure where `data/` lives inside a folder called e.g., `fish_folder/`. The script [`make_directories`](make_directories.R) prepares the necessary folder structure. 
 
 ## Scope of the paper
 
-- **Taxonomic groups.** Diatoms, fish, macroinvertebrates, macrophytes.
+- **Taxonomic groups.** diatoms, fish, macroinvertebrates, macrophytes.
 - **Geographic scope.** Continental Europe.
-- **Dataset.** ~400,000 biological samples harmonized from ~90 national and regional datasets, paired with catchment-derived environmental descriptors.
+- **Dataset.** ~400,000 biological samples harmonized from 114 national and regional datasets, paired with catchment-derived environmental descriptors.
 
 ## Repository structure
 
 ```
 .
-├── R/                    # Reusable functions sourced by the pipeline
-├── parent/code/                 # Top-level, numbered scripts (one per pipeline stage)
+├── R/                        # Reusable functions sourced by the pipeline
+├── parent/code/              # Top-level, numbered scripts (one per pipeline stage)
 │   ├── 01_add_eu_hydro_to_biota.R
 │   ├── 02_combine_env.R
 │   ├── 03_add_env_biota.R
 │   ├── 04_define_schemes.R
 │   ├── ...
-│   ├── results/
-├── docs/
-│   ├── 01_preparation.md
-│   ├── 02_hmsc.md
-│   ├── 03_simulation_evaluation_qrf.md
-│   ├── 04_results_to_paper.md
-├── shell/                  # SLURM / Singularity definition files
-└── README.md
+│   ├── results/             # scripts to produce figures and data for results 
+│   ├── prepare_environment  # scripts to prepare environmental data 
+├── Flowchart/               # A Flowcharts which explains how different scripts and files are connected
+│   ├── 01_project_pipeline.md
+├── shell/                   # shell scirpts run with SLURM on a HPC Server
+├── r_v1-4.def                
+├── hmsc_fit.def             # singularity definition file    
+├── make_directories.R       # ???             
+└── README.md                # The text you are reading right now.
+
 ```
 
 ## Data
 
 Raw biological and environmental data are **not redistributed** in this repository 
-but are available on [Zenodo](https://zenodo.org/records/20701841?preview=1&token=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6ImVmMTZmMjg4LThlNzEtNDlmZS1hNmUwLTBjN2RkY2NjNTU2MiIsImRhdGEiOnt9LCJyYW5kb20iOiJlMTU0NTI0MDM1Y2MzNTQzMTFhMTNiZTAzYjgyMmIxNSJ9.ESQO7owKnBSoYGuFdBs73TONFFTaGuvP5BhJ--YTgzEssIlaYLgx25gINDf__tttRC9jSPkUTXj7Q06CAaEPNQ)
-Data from different processing steps will be shared upon request.
+but biological data are available on [Zenodo](https://zenodo.org/records/20701841?preview=1&token=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6ImVmMTZmMjg4LThlNzEtNDlmZS1hNmUwLTBjN2RkY2NjNTU2MiIsImRhdGEiOnt9LCJyYW5kb20iOiJlMTU0NTI0MDM1Y2MzNTQzMTFhMTNiZTAzYjgyMmIxNSJ9.ESQO7owKnBSoYGuFdBs73TONFFTaGuvP5BhJ--YTgzEssIlaYLgx25gINDf__tttRC9jSPkUTXj7Q06CAaEPNQ).
+Some data from intermediate processing are made available alongside them.
 
 ## Reproducing the analyses
 
 The full pipeline can be reproduced by running the numbered scripts in order.
-Dependencies between scripts and files is shown in the 'docs/' folder.  
+Dependencies between scripts and files is shown in the ['docs/'](docs/) folder.  
+Unfortunately, they are not properly displayed in the anonymized version. 
+You can copy paste them here: https://mermaidviewer.com/editor
 
-Parts of the analysis were run on HPC at ANNONYMIZED FOR PEER REVIEW. 
+Parts of the analysis were run on HPC at ANONYMIZED FOR PEER REVIEW. 
 
-You can start by running the scripts numbered 01,03, and 04. All required data is provided in the complimentary [Zenodo repository](https://zenodo.org/records/20701841?preview=1&token=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6ImVmMTZmMjg4LThlNzEtNDlmZS1hNmUwLTBjN2RkY2NjNTU2MiIsImRhdGEiOnt9LCJyYW5kb20iOiJlMTU0NTI0MDM1Y2MzNTQzMTFhMTNiZTAzYjgyMmIxNSJ9.ESQO7owKnBSoYGuFdBs73TONFFTaGuvP5BhJ--YTgzEssIlaYLgx25gINDf__tttRC9jSPkUTXj7Q06CAaEPNQ). Script two requires the download of openly available data which we do not reprovide here. The products of script [02_combine_env.R](parent/code/02_combine_env.R) are provided in the Zenodo Repositorty. 
+You can start by running the scripts numbered [01](parent/code/01_add_eu_hydro_to_biota), [03](parent/code/03_add_env_biota.R), and [04](parent/code/04_define_schemes.R) ([02](parent/code/02_combine_env.R) requires an external download; see below). All required data is provided in the complimentary [Zenodo repository](https://zenodo.org/records/20701841?preview=1&token=eyJhbGciOiJIUzUxMiJ9.eyJpZCI6ImVmMTZmMjg4LThlNzEtNDlmZS1hNmUwLTBjN2RkY2NjNTU2MiIsImRhdGEiOnt9LCJyYW5kb20iOiJlMTU0NTI0MDM1Y2MzNTQzMTFhMTNiZTAzYjgyMmIxNSJ9.ESQO7owKnBSoYGuFdBs73TONFFTaGuvP5BhJ--YTgzEssIlaYLgx25gINDf__tttRC9jSPkUTXj7Q06CAaEPNQ). Script two requires the download of openly available data which we do not provide here. The products of script [02_combine_env.R](parent/code/02_combine_env.R) are provided in the Zenodo repository. 
 
-The scripts [05_build_hmsc_hpc_models.R](parent/code/05_build_hmsc_hpc_models.R) to [11_fit_qrf.R](parent/code/11_fit_qrf.R] were run on servers.
+The scripts [05_build_hmsc_hpc_models.R](parent/code/05_build_hmsc_hpc_models.R) to [11_qrf_fit.R](parent/code/11_qrf_fit.R] were run on servers.
 Each is associated with a shell script. These can be found in [`shell`](shell/)
 We fit the models running the shell script [02_hmsc_array.sh](shell/02_hmsc_array.sh). This script needs to be called for each taxonomic separately and from inside the respective folder (i.e., diatom_folder/ for diatoms). 
-On servers we ran two singulariy containers. One for the HMSC-HPC model which is running Tensor Flow in Python, and one for R scripts. Both container (.sif) files are in the Zenodo repository and definitions (.def) are included in this github respositroy.
-The final scirpts ([`parent/code/results/`](parent/code/results/)), which compile the results and create figures where run locally. 
+On servers we ran two singularity containers. One for the HMSC-HPC model which is running Tensor Flow in Python, and one for R scripts. Both container (.sif) files are in the Zenodo repository and definitions (.def) are included in this github repository ([here](fit_hmsc.def) and [here](r_v1-4.def)).
+The containers can be build from the .def files with 
+`singularity build --fakeroot hmsc_fi.sif hmsc_fit.def` if singularity is installed and this is called from the folder containing `hmsc_fit.def`.
+The final scrpts ([`parent/code/results/`](parent/code/results/)), which compile the results and create figures where run locally. 
 
-### HPC workflow
-
-HPC jobs were managed via SLURM and the shell scripts used to submit jobs are 
-available under 'hpc/'.
 
 ## Shiny application
 
@@ -96,11 +101,11 @@ The Shiny app provides an interactive view of the benchmarks:
 - Batch prediction from uploaded CSV/Excel tables
 - KNN-based imputation of missing environmental predictors
 
-A hosted version is available **[HERE](https://pulse-shiny2-typecoherenceprediction.2.rahtiapp.fi/)**.
+A hosted version is available **[HERE](https://typology-benchmark-prediction-typecoherenceprediction.2.rahtiapp.fi/)**.
 
 ## Funding and acknowledgments
 
-This work was supported by ANNONYMIZED FOR PEER REVIEW. 
+This work was supported by ANONYMIZED FOR PEER REVIEW. 
 
 <!-- the **DFG Walter Benjamin Fellowship** (grant no. 557888845). We thank the data providers listed in the manuscript supplement for sharing harmonised biological and environmental records. --> 
 <!-- We also wish to thank the Finnish Computing Competence Infrastructure (FCCI) for supporting this project with computational and data storage resources. --> 
@@ -108,9 +113,9 @@ This work was supported by ANNONYMIZED FOR PEER REVIEW.
 
 ## Contact
 
-Questions, bug reports, and collaboration enquiries are welcome via GitHub issues, or by email to ANNONYMIZED FOR PEER REVIEW.
+Questions, bug reports, and collaboration inquiries are welcome via GitHub issues, or by email to ANONYMIZED FOR PEER REVIEW.
 
 
 - **Code:** GPL-3.0
 - **Derived data and figures:** CC BY 4.0, unless otherwise stated in the relevant Zenodo record.
-- Source datasets retain their original licences; contact the listed providers for redistribution terms.
+- Source datasets retain their original licenses; contact the listed providers for redistribution terms.
