@@ -2,17 +2,12 @@
 # res_5_lofo.R
 # Extrapolation cost to an unseen typology family: CRPS of the leave-one-family-out
 #   model relative to the size-matched control; bars: range over CV folds.
-# Stand-alone: needs only lofo_contrast.csv written by qrf_summary.R.
-#
-# Usage: Rscript res_5_lofo.R [lofo_contrast.csv] [output stem]
-#   defaults: data/QRF_RESULTS/lofo_contrast.csv  figures/main_text/Results/res_5
-#   writes <stem>.png (300 dpi) and <stem>.pdf
 ################################################################################*
 
-suppressPackageStartupMessages({
-        library(data.table)
-        library(ggplot2)
-})
+
+library(data.table)
+library(ggplot2)
+
 
 args     <- commandArgs(trailingOnly = TRUE)
 in_file  <- if (length(args) >= 1) args[1] else "data/009_qrf_results/lofo_contrast.csv"
