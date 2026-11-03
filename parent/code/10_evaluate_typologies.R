@@ -2,14 +2,6 @@
 # Script Name:        evaluate_typologies.R
 # Description:        evaluate coherence between simulated typologies and communities
 #                     (Array version - processes one iteration per job)
-#
-# Author:             Jonathan Jupke 
-# Date Created:       2025-09-15
-# Last Modified:      2026-09-30
-#
-# R Version:          R 4.5.1
-# Required Packages:  data.table, parallel, vegan, parallelDist
-#
 # Usage:              Rscript evaluate_typologies_array.R --iter_id <ID> --input <file> --output <file>
 # Notes:              Designed to run as SLURM array job - one iteration per job
 #                     One array equals one scheme (e.g., "fish_0001") so ty-
