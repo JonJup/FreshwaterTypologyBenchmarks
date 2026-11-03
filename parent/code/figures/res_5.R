@@ -8,10 +8,8 @@
 library(data.table)
 library(ggplot2)
 
-
-args     <- commandArgs(trailingOnly = TRUE)
-in_file  <- if (length(args) >= 1) args[1] else "data/009_qrf_results/lofo_contrast.csv"
-out_stem <- if (length(args) >= 2) args[2] else "figures/main_text/Results/res_5"
+in_file  <- "data/009_qrf_results/lofo_contrast.csv"
+out_stem <- "figures/main_text/Results/res_5"
 
 ## ---- Shared style: identical block in res_1 ... res_5 (edit in all five) ----
 base_size  <- 9
