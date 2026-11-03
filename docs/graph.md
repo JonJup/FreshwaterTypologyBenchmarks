@@ -2,6 +2,10 @@ The Raw Data are the four files: diatoms.csv, fish.csv, invertebrates.csv, and m
 All files we have made available are marked with an * at the end of their name.
 Some files have a placeholder \*taxon\* in their name. These files exist separately for each taxon and are called e.g., 01_diatoms_w_catchment_id.rds.
 
+We recommend copy pasting the diagram [here](https://mermaidviewer.com/editor). This website allows interactive exploration of mermaid diagrams. 
+
+ 
+
 Legend:
 - 📜 analysis script
 - ⚙️ custom scripts/functions (dashed arrow: sourced by a script)
