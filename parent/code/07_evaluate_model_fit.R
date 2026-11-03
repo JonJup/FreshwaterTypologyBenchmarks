@@ -2,8 +2,6 @@
 # Script Name:        check_model_fit_large_models.R
 # Description:        Checks MCMC convergence (PSRF) and predictive performance 
 #                     (AUC, Beta diversity, C-score, Prevalence) for HMSC models.
-#
-# Author:             Jonathan Jupke
 ################################################################################
 
 cat("R script starting \n")
