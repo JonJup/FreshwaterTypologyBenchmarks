@@ -13,7 +13,7 @@ library(tidytext)
 library(flextable)
 library(officer)
 
-setwd("//turso-fs.cs.helsinki.fi/turso/home/jonjupke/")
+setwd("")
 
 # ==============================================================================*
 #  2. Load Data ----
