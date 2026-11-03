@@ -27,7 +27,7 @@ library(ggplot2)
 # 1. Setup ----
 #===============================================================================*
 
-input_base   <- "//turso-fs.cs.helsinki.fi/turso/home/jonjupke/pulse"
+input_base   <- ""
 taxa_suffix  <- c("D", "F", "I", "M")
 input_ending <- "/data/008_qrf/"
 input_dir    <- paste0(input_base, taxa_suffix, input_ending)
